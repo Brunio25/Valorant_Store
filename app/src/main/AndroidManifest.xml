@@ -4,6 +4,10 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
 
+    <uses-permission android:name="android.permission.BLUETOOTH"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+
     <application
         android:usesCleartextTraffic="true"
 
@@ -17,7 +21,7 @@
         android:theme="@style/Theme.ValorantStore"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name=".AppActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.ValorantStore">
@@ -28,19 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="net.openid.appauth.RedirectUriReceiverActivity"
-            android:exported="true"
-            tools:node="replace">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW" />
-                <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.BROWSABLE" />
-                <data android:scheme="com.yourdomain.app"
-                    android:host="callback" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".AuthWebViewActivity"
+            android:name=".auth.activities.AuthActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

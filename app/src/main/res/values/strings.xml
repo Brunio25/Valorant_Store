@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Valorant Store</string>
+
+    <!-- Authentication -->
+    <string name="auth_riot_domain">auth.riotgames.com</string>
+    <string name="auth_riot_client_id">play-valorant-web-prod</string>
+    <string name="auth_riot_redirect_uri">https://playvalorant.com/opt_in</string>
+    <string name="auth_token_identifier">access_token</string>
 </resources>
