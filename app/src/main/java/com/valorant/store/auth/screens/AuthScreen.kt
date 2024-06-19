@@ -1,5 +1,7 @@
 package com.valorant.store.auth.screens
 
+import android.net.Uri
+import android.util.Log
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.compose.foundation.layout.Box
@@ -13,43 +15,61 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.valorant.store.R
-import com.valorant.store.auth.util.AuthUtil
-import com.valorant.store.auth.view_models.AuthViewModel
+import com.valorant.store.auth.state.PageLoadingState
+import com.valorant.store.auth.state.TokenState
+import com.valorant.store.auth.util.buildUrl
+import com.valorant.store.navigation.NavRoutes
 
 @Composable
-fun AuthScreen(navController: NavController) {
-    val viewModel: AuthViewModel = viewModel()
+fun AuthScreen(navController: NavController, tokenState: TokenState) {
+    val viewModel: PageLoadingState = viewModel()
 
     val riotDomain = stringResource(id = R.string.auth_riot_domain)
-    val redirectUri = stringResource(id = R.string.auth_riot_redirect_uri)
+    val registeredRedirectUri = stringResource(id = R.string.auth_riot_redirect_uri)
     val clientId = stringResource(id = R.string.auth_riot_client_id)
     val tokenIdentifier = stringResource(id = R.string.auth_token_identifier)
-    val authUtil = AuthUtil(riotDomain, redirectUri, clientId, tokenIdentifier)
+
+    val onRedirectViewInterceptor = onRedirectViewInterceptorCreator(
+        registeredRedirectUri = registeredRedirectUri,
+        tokenIdentifier = tokenIdentifier,
+        navController = navController,
+        tokenState = tokenState
+    )
 
     Box(modifier = Modifier.fillMaxSize()) {
         AuthWebView(
-            url = authUtil.buildUrl(),
-            onRedirectInterceptor = authUtil.onRedirectWeViewInterceptor(navController),
+            url = buildUrl(riotDomain, registeredRedirectUri, clientId),
+            onRedirectViewInterceptor = onRedirectViewInterceptor,
             viewModel = viewModel
         )
         CircularProgressIndicator(modifier = Modifier.alpha(if (viewModel.isPageLoading.value) 1f else 0f))
     }
 }
 
-const val JAVASCRIPT_CSS_INJECTOR = """
-                const styleElement = document.createElement("style");
-                styleElement.innerHTML = "#root > div > :not(:first-child) { z-index: 1; }";
-                document.head.appendChild(styleElement);
-            """
+private fun onRedirectViewInterceptorCreator(
+    registeredRedirectUri: String,
+    tokenIdentifier: String,
+    navController: NavController,
+    tokenState: TokenState
+): (String) -> Boolean = { url ->
+    if (url.startsWith(registeredRedirectUri).not()) {
+        false
+    } else {
+        val token =
+            Uri.parse(url).fragment?.split("&")?.map { it.split("=") }?.associate { it[0] to it[1] }
+                ?.get(tokenIdentifier)
 
+        Log.w("TOKEN: ", "--------- onRedirectInterceptor: $token")
+        tokenState.setToken(token)
+        navController.navigate(NavRoutes.Home.route)
+        true
+    }
+}
 
 @Composable
 private fun AuthWebView(
-    url: String,
-    onRedirectInterceptor: (String) -> Boolean,
-    viewModel: AuthViewModel
+    url: String, onRedirectViewInterceptor: (String) -> Boolean, viewModel: PageLoadingState
 ) {
-    val cssInjector = stringResource(id = R.string.auth_javascript_css_injector)
     AndroidView(modifier = Modifier
         .fillMaxSize()
         .alpha(if (viewModel.isPageLoading.value) 0f else 1f),
@@ -78,13 +98,10 @@ private fun AuthWebView(
 //            clearHistory()
 //            clearFormData()
 
-                // TODO: Remove?
-                WebView.setWebContentsDebuggingEnabled(true)
+                WebView.setWebContentsDebuggingEnabled(true) // TODO: Remove?
 
                 webViewClient = AuthWebViewClient(
-                    onRedirectInterceptor = onRedirectInterceptor,
-                    viewModel = viewModel,
-                    cssInjector = JAVASCRIPT_CSS_INJECTOR //TODO workaround for now
+                    onRedirectViewInterceptor = onRedirectViewInterceptor, viewModel = viewModel
                 )
 
                 loadUrl(url)

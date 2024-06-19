@@ -9,18 +9,20 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.valorant.store.auth.view_models.AuthViewModel
+import com.valorant.store.auth.state.PageLoadingState
+
+const val JAVASCRIPT_CSS_INJECTOR = """
+                const styleElement = document.createElement("style");
+                styleElement.innerHTML = "#root > div > :not(:first-child) { z-index: 1; }";
+                document.head.appendChild(styleElement);
+            """
 
 internal class AuthWebViewClient(
-    private val onRedirectInterceptor: (String) -> Boolean,
-    private val viewModel: AuthViewModel,
-    private val cssInjector: String
+    private val onRedirectViewInterceptor: (String) -> Boolean,
+    private val viewModel: PageLoadingState
 ) : WebViewClient() {
-    override fun shouldOverrideUrlLoading(
-        view: WebView, request: WebResourceRequest?
-    ): Boolean {
-        return onRedirectInterceptor(request?.url.toString())
-    }
+    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean =
+        onRedirectViewInterceptor(request?.url.toString())
 
     override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
         super.onPageStarted(view, url, favicon)
@@ -31,8 +33,8 @@ internal class AuthWebViewClient(
         super.onPageFinished(view, url)
         Log.d("WebView", "Page finished loading: $url")
 
-        view.evaluateJavascript(cssInjector, null)
-        viewModel.pageFinished()
+        view.evaluateJavascript(JAVASCRIPT_CSS_INJECTOR, null)
+        viewModel.pageLoaded()
     }
 
     override fun onReceivedError(
