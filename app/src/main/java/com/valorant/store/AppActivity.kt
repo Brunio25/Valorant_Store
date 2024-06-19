@@ -1,6 +1,5 @@
 package com.valorant.store
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -13,7 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import com.valorant.store.auth.activities.AuthActivity
+import androidx.navigation.NavController
+import com.valorant.store.navigation.AppNavigation
+import com.valorant.store.navigation.NavRoutes
 import com.valorant.store.ui.theme.ValorantStoreTheme
 
 //class MainActivity : ComponentActivity() {
@@ -49,19 +50,27 @@ class AppActivity : ComponentActivity() {
         setContent {
             ValorantStoreTheme {
                 Surface(color = MaterialTheme.colorScheme.background) {
-                    Button()
+                    AppNavigation()
                 }
             }
         }
     }
 }
 
+//@Composable
+//fun AppScreen() {
+//    ValorantStoreTheme {
+//        Surface(color = MaterialTheme.colorScheme.background) {
+//            Button()
+//        }
+//    }
+//}
+
 @Composable
-fun Button() {
-    val context = LocalContext.current
+fun FirstScreen(navController: NavController) {
+    LocalContext.current
     return Button(onClick = {
-        val intent = Intent(context, AuthActivity::class.java)
-        context.startActivity(intent)
+        navController.navigate(NavRoutes.Auth.route)
     }) {
         Text(text = "Login")
     }

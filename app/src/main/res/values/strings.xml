@@ -6,4 +6,9 @@
     <string name="auth_riot_client_id">play-valorant-web-prod</string>
     <string name="auth_riot_redirect_uri">https://playvalorant.com/opt_in</string>
     <string name="auth_token_identifier">access_token</string>
+    <string name="auth_javascript_css_injector">
+        const styleElement = document.createElement("style");
+        styleElement.innerHTML = "#root > div > :not(:first-child) { z-index: 1; }";
+        const headElement = document.head.appendChild(styleElement);
+    </string>
 </resources>

@@ -1,11 +1,5 @@
 package com.valorant.store.auth
 
-sealed class AuthState {
-    data object UnAuthenticated : AuthState()
-    data object Authenticated : AuthState()
-    data object Error : AuthState()
-}
-
 //class AuthViewModel(application: Application) : AndroidViewModel(application) {
 //    private val _authState = MutableStateFlow<AuthState>(AuthState.UnAuthenticated)
 //    val authState: StateFlow<AuthState> = _authState
