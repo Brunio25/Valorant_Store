@@ -9,7 +9,7 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.valorant.store.auth.state.PageLoadingState
+import com.valorant.store.auth.viewmodel.PageLoadingViewModel
 
 const val JAVASCRIPT_CSS_INJECTOR = """
                 const styleElement = document.createElement("style");
@@ -19,7 +19,7 @@ const val JAVASCRIPT_CSS_INJECTOR = """
 
 internal class AuthWebViewClient(
     private val onRedirectViewInterceptor: (String) -> Boolean,
-    private val viewModel: PageLoadingState
+    private val viewModel: PageLoadingViewModel
 ) : WebViewClient() {
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest?): Boolean =
         onRedirectViewInterceptor(request?.url.toString())

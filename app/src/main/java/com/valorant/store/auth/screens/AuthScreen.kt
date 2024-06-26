@@ -15,14 +15,15 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.valorant.store.R
-import com.valorant.store.auth.state.PageLoadingState
-import com.valorant.store.auth.state.TokenState
+import com.valorant.store.api.interceptors.AuthInterceptor
 import com.valorant.store.auth.util.buildUrl
+import com.valorant.store.auth.viewmodel.PageLoadingViewModel
+import com.valorant.store.global.GlobalState
 import com.valorant.store.navigation.NavRoutes
 
 @Composable
-fun AuthScreen(navController: NavController, tokenState: TokenState) {
-    val viewModel: PageLoadingState = viewModel()
+fun AuthScreen(navController: NavController, globalState: GlobalState) {
+    val viewModel: PageLoadingViewModel = viewModel()
 
     val riotDomain = stringResource(id = R.string.auth_riot_domain)
     val registeredRedirectUri = stringResource(id = R.string.auth_riot_redirect_uri)
@@ -33,7 +34,7 @@ fun AuthScreen(navController: NavController, tokenState: TokenState) {
         registeredRedirectUri = registeredRedirectUri,
         tokenIdentifier = tokenIdentifier,
         navController = navController,
-        tokenState = tokenState
+        globalState = globalState
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -50,17 +51,19 @@ private fun onRedirectViewInterceptorCreator(
     registeredRedirectUri: String,
     tokenIdentifier: String,
     navController: NavController,
-    tokenState: TokenState
+    globalState: GlobalState
 ): (String) -> Boolean = { url ->
     if (url.startsWith(registeredRedirectUri).not()) {
         false
     } else {
-        val token =
-            Uri.parse(url).fragment?.split("&")?.map { it.split("=") }?.associate { it[0] to it[1] }
-                ?.get(tokenIdentifier)
+        val token = Uri.parse(url).fragment?.split("&")
+            ?.map { it.split("=") }
+            ?.associate { it[0] to it[1] }
+            ?.get(tokenIdentifier)
 
         Log.w("TOKEN: ", "--------- onRedirectInterceptor: $token")
-        tokenState.setToken(token)
+        globalState.setToken(token)
+        AuthInterceptor.setTokenProvider(globalState)
         navController.navigate(NavRoutes.Home.route)
         true
     }
@@ -68,7 +71,7 @@ private fun onRedirectViewInterceptorCreator(
 
 @Composable
 private fun AuthWebView(
-    url: String, onRedirectViewInterceptor: (String) -> Boolean, viewModel: PageLoadingState
+    url: String, onRedirectViewInterceptor: (String) -> Boolean, viewModel: PageLoadingViewModel
 ) {
     AndroidView(modifier = Modifier
         .fillMaxSize()

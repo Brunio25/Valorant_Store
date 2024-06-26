@@ -6,4 +6,7 @@
     <string name="auth_riot_client_id">play-valorant-web-prod</string>
     <string name="auth_riot_redirect_uri">https://playvalorant.com/opt_in</string>
     <string name="auth_token_identifier">access_token</string>
+
+    <!-- Valorant Store Repository -->
+    <string name="store_repo_base_ref">https://auth.riotgames.com</string>
 </resources>
