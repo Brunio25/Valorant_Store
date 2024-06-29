@@ -26,10 +26,9 @@ object UserRepository : Repository<UserApi>(UserApi::class.java, BASE_URL) {
 }
 
 object UserMapper {
-    fun toUserEntity(userInfoDTO: UserInfoDTO): Result<UserEntity> {
-        return UserEntity.of(userInfoDTO.sub, userInfoDTO.affinity["pp"], userInfoDTO.acct.gameName)
+    fun toUserEntity(userInfoDTO: UserInfoDTO): Result<UserEntity> =
+        UserEntity.of(userInfoDTO.sub, userInfoDTO.affinity["pp"], userInfoDTO.acct.gameName)
             .let { Result.success(it) }
-    }
 }
 
 data class UserEntity(val puuid: UUID, val shard: String?, val gamerName: String) {

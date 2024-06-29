@@ -8,6 +8,6 @@ import retrofit2.http.GET
 interface UserApi : Api {
 
     @GET("/userinfo")
-    suspend fun userInfo() : Response<UserInfoDTO>
+    suspend fun userInfo(): Response<UserInfoDTO>
 }
 

@@ -25,7 +25,7 @@ fun HomeScreen(globalState: GlobalState) {
         return
     }
 
-    val temp = user?.getOrNull()?.gamerName ?: "null"
+    val temp = user?.getOrNull()?.gamerName ?: token ?: "null"
 
     Log.w("TOKEN_HOME", temp)
     Text("Token: $temp")

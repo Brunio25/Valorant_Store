@@ -3,6 +3,8 @@ package com.valorant.store.global
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.valorant.store.api.entitlement.EntitlementEntity
+import com.valorant.store.api.entitlement.EntitlementRepository
 import com.valorant.store.api.user.UserEntity
 import com.valorant.store.api.user.UserRepository
 import kotlinx.coroutines.flow.MutableStateFlow
