@@ -11,6 +11,7 @@ import com.valorant.store.global.GlobalState
 @Composable
 fun HomeScreen(globalState: GlobalState) {
     val token by globalState.token.collectAsState()
+    val isEssentialDataLoaded by globalState.isEssentialDataLoaded.collectAsState()
     val user by globalState.user.collectAsState()
 
     if (token == null) {
@@ -18,14 +19,14 @@ fun HomeScreen(globalState: GlobalState) {
     }
 
     LaunchedEffect(key1 = token) {
-        globalState.getUserInfo()
+        globalState.loadEssentialData()
     }
 
-    if (user?.getOrNull() == null) {
+    if (!isEssentialDataLoaded) {
         return
     }
 
-    val temp = user?.getOrNull()?.gamerName ?: token ?: "null"
+    val temp = user?.getOrNull()?.gamerName ?: "null"
 
     Log.w("TOKEN_HOME", temp)
     Text("Token: $temp")
