@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 object GlobalState : ViewModel() {
-    private val _token = MutableStateFlow<String?>(null)
-    val token: StateFlow<String?> = _token
+    private val _authToken = MutableStateFlow<String?>(null)
+    val authToken: StateFlow<String?> = _authToken
 
     private val _isEssentialDataLoaded = MutableStateFlow(false)
     val isEssentialDataLoaded: StateFlow<Boolean> = _isEssentialDataLoaded
@@ -28,9 +28,9 @@ object GlobalState : ViewModel() {
     private val _entitlement = MutableStateFlow<Result<EntitlementEntity>?>(null)
     val entitlement: StateFlow<Result<EntitlementEntity>?> = _entitlement
 
-    fun setToken(newToken: String?) {
+    fun setAuthToken(newToken: String?) {
         viewModelScope.launch {
-            _token.value = newToken
+            _authToken.value = newToken
         }
     }
 

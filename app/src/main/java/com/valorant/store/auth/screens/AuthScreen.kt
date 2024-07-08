@@ -62,7 +62,7 @@ private fun onRedirectViewInterceptorCreator(
             ?.get(tokenIdentifier)
 
         Log.w("TOKEN: ", "--------- onRedirectInterceptor: $token")
-        globalState.setToken(token)
+        globalState.setAuthToken(token)
         AuthInterceptor.setTokenProvider(globalState)
         navController.navigate(NavRoutes.Home.route)
         true

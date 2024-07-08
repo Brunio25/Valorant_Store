@@ -1,4 +1,4 @@
-package com.valorant.store.home.screens
+package com.valorant.store.main.screens
 
 import android.util.Log
 import androidx.compose.material3.Text
@@ -9,8 +9,8 @@ import androidx.compose.runtime.getValue
 import com.valorant.store.global.GlobalState
 
 @Composable
-fun HomeScreen(globalState: GlobalState) {
-    val token by globalState.token.collectAsState()
+fun MainScreen(globalState: GlobalState) {
+    val token by globalState.authToken.collectAsState()
     val isEssentialDataLoaded by globalState.isEssentialDataLoaded.collectAsState()
     val user by globalState.user.collectAsState()
 

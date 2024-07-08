@@ -8,7 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import com.valorant.store.FirstScreen
 import com.valorant.store.auth.screens.AuthScreen
 import com.valorant.store.global.GlobalState
-import com.valorant.store.home.screens.HomeScreen
+import com.valorant.store.main.screens.MainScreen
 
 @Composable
 fun AppNavigation() {
@@ -23,7 +23,7 @@ fun AppNavigation() {
             AuthScreen(navController, globalState)
         }
         composable(NavRoutes.Home.route) {
-            HomeScreen(globalState)
+            MainScreen(globalState)
         }
     }
 }

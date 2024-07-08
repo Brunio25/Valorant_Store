@@ -11,7 +11,7 @@ object AuthInterceptor : Interceptor {
 
     fun setTokenProvider(globalState: GlobalState) {
         synchronized(this) {
-            this.tokenProvider = { globalState.token.value }
+            this.tokenProvider = { globalState.authToken.value }
         }
     }
 
