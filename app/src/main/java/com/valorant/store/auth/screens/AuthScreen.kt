@@ -16,13 +16,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.valorant.store.R
 import com.valorant.store.api.interceptors.AuthInterceptor
+import com.valorant.store.auth.AuthState
 import com.valorant.store.auth.util.buildUrl
 import com.valorant.store.auth.viewmodel.PageLoadingViewModel
-import com.valorant.store.global.GlobalState
 import com.valorant.store.navigation.NavRoutes
 
 @Composable
-fun AuthScreen(navController: NavController, globalState: GlobalState) {
+fun AuthScreen(navController: NavController, authState: AuthState) {
     val viewModel: PageLoadingViewModel = viewModel()
 
     val riotDomain = stringResource(id = R.string.auth_riot_domain)
@@ -34,7 +34,7 @@ fun AuthScreen(navController: NavController, globalState: GlobalState) {
         registeredRedirectUri = registeredRedirectUri,
         tokenIdentifier = tokenIdentifier,
         navController = navController,
-        globalState = globalState
+        authState = authState
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -51,7 +51,7 @@ private fun onRedirectViewInterceptorCreator(
     registeredRedirectUri: String,
     tokenIdentifier: String,
     navController: NavController,
-    globalState: GlobalState
+    authState: AuthState
 ): (String) -> Boolean = { url ->
     if (url.startsWith(registeredRedirectUri).not()) {
         false
@@ -62,8 +62,8 @@ private fun onRedirectViewInterceptorCreator(
             ?.get(tokenIdentifier)
 
         Log.w("TOKEN: ", "--------- onRedirectInterceptor: $token")
-        globalState.setAuthToken(token)
-        AuthInterceptor.setTokenProvider(globalState)
+        authState.setAuthToken(token)
+        AuthInterceptor.setTokenProvider(authState)
         navController.navigate(NavRoutes.Home.route)
         true
     }

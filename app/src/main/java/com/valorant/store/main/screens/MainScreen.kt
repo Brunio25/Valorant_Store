@@ -6,20 +6,23 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import com.valorant.store.global.GlobalState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.valorant.store.api.essential_data.EssentialDataState
+import com.valorant.store.auth.AuthState
 
 @Composable
-fun MainScreen(globalState: GlobalState) {
-    val token by globalState.authToken.collectAsState()
-    val isEssentialDataLoaded by globalState.isEssentialDataLoaded.collectAsState()
-    val user by globalState.user.collectAsState()
+fun MainScreen(authState: AuthState) {
+    val viewModel: EssentialDataState = viewModel()
+    val authToken by authState.authToken.collectAsState()
+    val isEssentialDataLoaded by viewModel.isEssentialDataLoaded.collectAsState()
+    val user by viewModel.user.collectAsState()
 
-    if (token == null) {
+    if (authToken == null) {
         return
     }
 
-    LaunchedEffect(key1 = token) {
-        globalState.loadEssentialData()
+    LaunchedEffect(key1 = authToken) {
+        viewModel.loadEssentialData()
     }
 
     if (!isEssentialDataLoaded) {

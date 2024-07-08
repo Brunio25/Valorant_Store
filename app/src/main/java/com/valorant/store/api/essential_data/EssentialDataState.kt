@@ -1,9 +1,8 @@
-package com.valorant.store.global
+package com.valorant.store.api.essential_data
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.valorant.store.api.essential_data.client_version.ClientVersionRepository
 import com.valorant.store.api.essential_data.entitlement.EntitlementEntity
 import com.valorant.store.api.essential_data.entitlement.EntitlementRepository
 import com.valorant.store.api.essential_data.user.UserEntity
@@ -14,10 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-object GlobalState : ViewModel() {
-    private val _authToken = MutableStateFlow<String?>(null)
-    val authToken: StateFlow<String?> = _authToken
-
+object EssentialDataState : ViewModel() {
     private val _isEssentialDataLoaded = MutableStateFlow(false)
     val isEssentialDataLoaded: StateFlow<Boolean> = _isEssentialDataLoaded
 
@@ -26,12 +22,6 @@ object GlobalState : ViewModel() {
 
     private val _entitlement = MutableStateFlow<Result<EntitlementEntity>?>(null)
     val entitlement: StateFlow<Result<EntitlementEntity>?> = _entitlement
-
-    fun setAuthToken(newToken: String?) {
-        viewModelScope.launch {
-            _authToken.value = newToken
-        }
-    }
 
     fun loadEssentialData() {
         viewModelScope.launch {

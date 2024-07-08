@@ -1,6 +1,6 @@
 package com.valorant.store.api.interceptors
 
-import com.valorant.store.global.GlobalState
+import com.valorant.store.auth.AuthState
 import okhttp3.Interceptor
 import okhttp3.Response
 import kotlin.concurrent.Volatile
@@ -9,9 +9,9 @@ object AuthInterceptor : Interceptor {
     @Volatile
     private var tokenProvider: (() -> String?)? = null
 
-    fun setTokenProvider(globalState: GlobalState) {
+    fun setTokenProvider(authState: AuthState) {
         synchronized(this) {
-            this.tokenProvider = { globalState.authToken.value }
+            this.tokenProvider = { authState.authToken.value }
         }
     }
 
