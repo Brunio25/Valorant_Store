@@ -1,6 +1,7 @@
 package com.valorant.store.main.screens
 
 import android.util.Log
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -12,10 +13,9 @@ import com.valorant.store.auth.AuthState
 
 @Composable
 fun MainScreen(authState: AuthState) {
-    val viewModel: EssentialDataState = viewModel()
     val authToken by authState.authToken.collectAsState()
-    val isEssentialDataLoaded by viewModel.isEssentialDataLoaded.collectAsState()
-    val user by viewModel.user.collectAsState()
+    val viewModel: EssentialDataState = viewModel()
+    val essentialData by viewModel.essentialData.collectAsState()
 
     if (authToken == null) {
         return
@@ -25,12 +25,21 @@ fun MainScreen(authState: AuthState) {
         viewModel.loadEssentialData()
     }
 
-    if (!isEssentialDataLoaded) {
+    if (essentialData == null) {
+        CircularProgressIndicator()
         return
     }
 
-    val temp = user?.getOrNull()?.gamerName ?: "null"
+    val temp = try {
+        essentialData!!.getOrThrow().user.gamerName
+    } catch (e: Exception) {
+        e
+    }
 
-    Log.w("TOKEN_HOME", temp)
-    Text("Token: $temp")
+    if (temp !is Throwable) {
+        Log.i("TOKEN_HOME", temp.toString())
+        Text("Token: $temp")
+    } else {
+        Log.e("HOME", temp.message!!)
+    }
 }
