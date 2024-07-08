@@ -1,4 +1,4 @@
-package com.valorant.store.api.entitlement.dto
+package com.valorant.store.api.essential_data.entitlement.dto
 
 import com.google.gson.annotations.SerializedName
 

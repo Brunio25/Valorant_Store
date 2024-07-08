@@ -1,16 +1,15 @@
-package com.valorant.store.api.entitlement
+package com.valorant.store.api.essential_data.entitlement
 
 import com.valorant.store.api.Repository
-import com.valorant.store.api.entitlement.dto.EntitlementDTO
+import com.valorant.store.api.essential_data.entitlement.dto.EntitlementDTO
 
-private const val BASE_URL = "https://entitlements.auth.riotgames.com"
+object EntitlementRepository : Repository<EntitlementApi>(EntitlementApi::class.java) {
+    override val baseUrl = "https://entitlements.auth.riotgames.com"
 
-object EntitlementRepository : Repository<EntitlementApi>(EntitlementApi::class.java, BASE_URL) {
-    private val entitlementMapper = EntitlementMapper
     suspend fun getEntitlement() = try {
         val response = apiClient.entitlement()
         response.takeIf { it.isSuccessful }?.body()
-            ?.let { entitlementMapper.toEntitlementEntity(it) }
+            ?.let { EntitlementMapper.toEntitlementEntity(it) }
             ?: Result.failure(Exception("Null response body"))
     } catch (e: Exception) {
         Result.failure(e)

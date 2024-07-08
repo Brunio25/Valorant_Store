@@ -1,14 +1,12 @@
-package com.valorant.store.api.user
+package com.valorant.store.api.essential_data.user
 
 import com.valorant.store.api.Repository
-import com.valorant.store.api.user.dto.UserInfoDTO
+import com.valorant.store.api.essential_data.user.dto.UserInfoDTO
 import retrofit2.Response
 import java.util.UUID
 
-private const val BASE_URL = "https://auth.riotgames.com"
-
-object UserRepository : Repository<UserApi>(UserApi::class.java, BASE_URL) {
-    private val userMapper = UserMapper
+object UserRepository : Repository<UserApi>(UserApi::class.java) {
+    override val baseUrl = "https://auth.riotgames.com"
 
     suspend fun getUserInfo(): Result<UserEntity> = try {
         val response = apiClient.userInfo()
@@ -21,7 +19,7 @@ object UserRepository : Repository<UserApi>(UserApi::class.java, BASE_URL) {
         takeIf { isSuccessful }?.extractBody() ?: let { Result.failure(Exception(it.message())) }
 
     private fun Response<UserInfoDTO>.extractBody() = body()
-        ?.let { userMapper.toUserEntity(it) }
+        ?.let { UserMapper.toUserEntity(it) }
         ?: Result.failure(Exception("Null response body"))
 }
 

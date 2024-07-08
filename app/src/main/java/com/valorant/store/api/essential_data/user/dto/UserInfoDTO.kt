@@ -1,4 +1,4 @@
-package com.valorant.store.api.user.dto
+package com.valorant.store.api.essential_data.user.dto
 
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDateTime

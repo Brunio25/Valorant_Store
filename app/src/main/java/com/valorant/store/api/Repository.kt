@@ -1,5 +1,6 @@
 package com.valorant.store.api
 
-open class Repository<T : Api>(apiClass: Class<T>, baseUrl: String) {
-    protected val apiClient: T = ClientProvider.getInstance(apiClass, baseUrl)
+abstract class Repository<T : Api>(apiClass: Class<T>) {
+    protected abstract val baseUrl: String
+    protected val apiClient: T by lazy { ClientProvider.getInstance(apiClass, baseUrl) }
 }
