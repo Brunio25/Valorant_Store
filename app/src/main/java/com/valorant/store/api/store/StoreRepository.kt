@@ -22,3 +22,9 @@ class StoreRepository private constructor(shard: String) :
         val response = apiClient.storefront(UUID.randomUUID(), emptyMap())
     }
 }
+
+enum class StoreHeaders(val value: String) {
+    CLIENT_PLATFORM("X-Riot-ClientPlatform"),
+    CLIENT_VERSION("X-Riot-ClientVersion"),
+    ENTITLEMENT("X-Riot-Entitlements-JWT");
+}

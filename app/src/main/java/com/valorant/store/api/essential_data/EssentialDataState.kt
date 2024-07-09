@@ -3,12 +3,15 @@ package com.valorant.store.api.essential_data
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.valorant.store.api.essential_data.client_platform.ClientPlatformEntity
+import com.valorant.store.api.essential_data.client_platform.ClientPlatformRepository
 import com.valorant.store.api.essential_data.client_version.ClientVersionEntity
 import com.valorant.store.api.essential_data.client_version.ClientVersionRepository
 import com.valorant.store.api.essential_data.entitlement.EntitlementEntity
 import com.valorant.store.api.essential_data.entitlement.EntitlementRepository
 import com.valorant.store.api.essential_data.user.UserEntity
 import com.valorant.store.api.essential_data.user.UserRepository
+import com.valorant.store.api.store.StoreHeaders
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +25,7 @@ object EssentialDataState : ViewModel() {
     private val _user = MutableStateFlow<Result<UserEntity>?>(null)
     private val _entitlement = MutableStateFlow<Result<EntitlementEntity>?>(null)
     private val _clientVersion = MutableStateFlow<Result<ClientVersionEntity>?>(null)
+    private val clientPlatform = ClientPlatformRepository.getClientPlatform()
 
     fun loadEssentialData() {
         viewModelScope.launch {
@@ -31,8 +35,12 @@ object EssentialDataState : ViewModel() {
 
             awaitAll(loadUserDeferred, loadEntitlementDeferred, loadClientVersion)
 
+            Log.i("ESSENTIAL_PLATFORM", clientPlatform.toString())
             _essentialData.value = EssentialDataEntity.of(
-                _user.value!!, _entitlement.value!!, _clientVersion.value!!
+                _user.value!!,
+                _entitlement.value!!,
+                _clientVersion.value!!,
+                clientPlatform
             )
         }
     }
@@ -54,15 +62,17 @@ object EssentialDataState : ViewModel() {
 }
 
 class EssentialDataEntity private constructor(
-    public val user: UserEntity,
-    public val entitlement: EntitlementEntity,
-    public val clientVersion: ClientVersionEntity
+    val user: UserEntity,
+    private val entitlement: EntitlementEntity,
+    private val clientVersion: ClientVersionEntity,
+    private val clientPlatform: ClientPlatformEntity
 ) {
     companion object {
         fun of(
             user: Result<UserEntity>,
             entitlement: Result<EntitlementEntity>,
-            clientVersion: Result<ClientVersionEntity>
+            clientVersion: Result<ClientVersionEntity>,
+            clientPlatform: ClientPlatformEntity
         ): Result<EssentialDataEntity> {
             val userSuccess = user.getOrElse { return Result.failure(it) }
             val entitlementSuccess = entitlement.getOrElse { return Result.failure(it) }
@@ -71,8 +81,15 @@ class EssentialDataEntity private constructor(
             return EssentialDataEntity(
                 userSuccess,
                 entitlementSuccess,
-                clientVersionSuccess
+                clientVersionSuccess,
+                clientPlatform
             ).let { Result.success(it) }
         }
     }
+
+    fun toHeadersMap(): Map<String, String> = mapOf(
+        StoreHeaders.ENTITLEMENT to entitlement.entitlementToken,
+        StoreHeaders.CLIENT_VERSION to clientVersion.version,
+        StoreHeaders.CLIENT_PLATFORM to clientPlatform.encodedClientPlatform
+    ).mapKeys { it.key.value }
 }
