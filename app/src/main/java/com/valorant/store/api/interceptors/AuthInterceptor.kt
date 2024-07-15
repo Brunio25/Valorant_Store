@@ -11,14 +11,9 @@ object AuthInterceptor : Interceptor {
     @Volatile
     private var tokenProvider: (() -> String?)? = null
 
-    fun setTokenProvider(authState: AuthState) {
+    fun setTokenProvider(authTokenProvider: () -> String?) {
         synchronized(this) {
-            this.tokenProvider = {
-                when (val authToken = authState.authToken.value) {
-                    is UiState.Success -> authToken.data
-                    else -> null
-                }
-            }
+            this.tokenProvider = authTokenProvider
         }
     }
 

@@ -19,7 +19,9 @@ object ClientProvider {
 
     @Suppress("UNCHECKED_CAST")
     fun <T> getInstance(
-        apiClass: Class<T>, baseUrl: String, includeAuth: Boolean = true
+        apiClass: Class<T>,
+        baseUrl: String,
+        includeAuth: Boolean
     ): T where T : Api {
         return apiMap.getOrPut(apiClass) {
             createRetrofitClient(baseUrl, includeAuth).create(apiClass)
