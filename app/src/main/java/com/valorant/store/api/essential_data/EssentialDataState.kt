@@ -2,6 +2,7 @@ package com.valorant.store.api.essential_data
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.essential_data.client_platform.ClientPlatformEntity
 import com.valorant.store.api.essential_data.client_platform.ClientPlatformRepository
@@ -12,22 +13,32 @@ import com.valorant.store.api.essential_data.entitlement.EntitlementRepository
 import com.valorant.store.api.essential_data.user.UserEntity
 import com.valorant.store.api.essential_data.user.UserRepository
 import com.valorant.store.api.store.StoreHeaders
+import com.valorant.store.auth.AuthState
+import com.valorant.store.global.UiState
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-object EssentialDataState : ViewModel() {
-    private val _essentialData = MutableStateFlow<Result<EssentialDataEntity>?>(null)
-    val essentialData: StateFlow<Result<EssentialDataEntity>?> = _essentialData
+class EssentialDataState(authState: AuthState) : ViewModel() {
+    private val _essentialData = MutableStateFlow<UiState<EssentialDataEntity>>(UiState.Loading)
+    val essentialData: StateFlow<UiState<EssentialDataEntity>> = _essentialData
 
     private val _user = MutableStateFlow<Result<UserEntity>?>(null)
     private val _entitlement = MutableStateFlow<Result<EntitlementEntity>?>(null)
     private val _clientVersion = MutableStateFlow<Result<ClientVersionEntity>?>(null)
-    private val clientPlatform = ClientPlatformRepository.getClientPlatform()
+    private val _clientPlatform = ClientPlatformRepository.getClientPlatform()
 
-    fun loadEssentialData() {
+    init {
+        viewModelScope.launch {
+            authState.authToken.collect {
+                loadEssentialData()
+            }
+        }
+    }
+
+    private fun loadEssentialData() {
         viewModelScope.launch {
             val loadUserDeferred = async { loadUserInfo() }
             val loadEntitlementDeferred = async { loadEntitlement() }
@@ -35,12 +46,12 @@ object EssentialDataState : ViewModel() {
 
             awaitAll(loadUserDeferred, loadEntitlementDeferred, loadClientVersion)
 
-            Log.i("ESSENTIAL_PLATFORM", clientPlatform.toString())
+            Log.i("ESSENTIAL_PLATFORM", _clientPlatform.toString())
             _essentialData.value = EssentialDataEntity.of(
                 _user.value!!,
                 _entitlement.value!!,
                 _clientVersion.value!!,
-                clientPlatform
+                _clientPlatform
             )
         }
     }
@@ -73,17 +84,17 @@ class EssentialDataEntity private constructor(
             entitlement: Result<EntitlementEntity>,
             clientVersion: Result<ClientVersionEntity>,
             clientPlatform: ClientPlatformEntity
-        ): Result<EssentialDataEntity> {
-            val userSuccess = user.getOrElse { return Result.failure(it) }
-            val entitlementSuccess = entitlement.getOrElse { return Result.failure(it) }
-            val clientVersionSuccess = clientVersion.getOrElse { return Result.failure(it) }
+        ): UiState<EssentialDataEntity> {
+            val userSuccess = user.getOrElse { return UiState.Error(it) }
+            val entitlementSuccess = entitlement.getOrElse { return UiState.Error(it) }
+            val clientVersionSuccess = clientVersion.getOrElse { return UiState.Error(it) }
 
             return EssentialDataEntity(
                 userSuccess,
                 entitlementSuccess,
                 clientVersionSuccess,
                 clientPlatform
-            ).let { Result.success(it) }
+            ).let { UiState.Success(it) }
         }
     }
 
@@ -92,4 +103,17 @@ class EssentialDataEntity private constructor(
         StoreHeaders.CLIENT_VERSION to clientVersion.version,
         StoreHeaders.CLIENT_PLATFORM to clientPlatform.encodedClientPlatform
     ).mapKeys { it.key.value }
+}
+
+class EssentialDataStateFactory(
+    private val authState: AuthState
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(EssentialDataState::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return EssentialDataState(authState) as T
+        }
+
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

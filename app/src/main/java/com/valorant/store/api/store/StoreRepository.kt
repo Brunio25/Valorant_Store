@@ -1,6 +1,7 @@
 package com.valorant.store.api.store
 
 import com.valorant.store.api.Repository
+import com.valorant.store.api.store.dto.StorefrontDTO
 import java.util.UUID
 import kotlin.concurrent.Volatile
 
@@ -18,9 +19,15 @@ class StoreRepository private constructor(shard: String) :
             }
     }
 
-    suspend fun getStorefront() {
-        val response = apiClient.storefront(UUID.randomUUID(), emptyMap())
-    }
+    suspend fun getStorefront(puuid: UUID, headersMap: Map<String, String>): Result<StorefrontDTO> =
+        try {
+            val response = apiClient.storefront(puuid, headersMap)
+            response.takeIf { it.isSuccessful }?.body()
+                ?.let { Result.success(it) }
+                ?: Result.failure(Exception("Null response body"))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 }
 
 enum class StoreHeaders(val value: String) {

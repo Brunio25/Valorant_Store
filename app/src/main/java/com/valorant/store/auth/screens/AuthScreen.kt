@@ -1,7 +1,6 @@
 package com.valorant.store.auth.screens
 
 import android.net.Uri
-import android.util.Log
 import android.webkit.WebSettings
 import android.webkit.WebView
 import androidx.compose.foundation.layout.Box
@@ -15,7 +14,6 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.valorant.store.R
-import com.valorant.store.api.interceptors.AuthInterceptor
 import com.valorant.store.auth.AuthState
 import com.valorant.store.auth.util.buildUrl
 import com.valorant.store.auth.viewmodel.PageLoadingViewModel
@@ -61,9 +59,7 @@ private fun onRedirectViewInterceptorCreator(
             ?.associate { it[0] to it[1] }
             ?.get(tokenIdentifier)
 
-        Log.w("TOKEN: ", "--------- onRedirectInterceptor: $token")
         authState.setAuthToken(token)
-        AuthInterceptor.setTokenProvider(authState)
         navController.navigate(NavRoutes.Home.route)
         true
     }
