@@ -1,5 +1,6 @@
 package com.valorant.store.api.util
 
+import android.util.Log
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
 import com.google.gson.JsonElement
@@ -12,26 +13,46 @@ import java.time.format.DateTimeParseException
 
 private val isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'")
 
+// 0001-01-01T00:00:00Z
+// 2011-12-03T10:15:30Z
 class LocalDateTimeCustomDeserializer : JsonDeserializer<LocalDateTime> {
+    private val parsers = listOf(
+        fromEpochInstant(),
+        fromIsoDateTime(),
+        fromCustomIsoDateTime()
+    )
+
     override fun deserialize(
         json: JsonElement,
         typeOfT: Type,
         context: JsonDeserializationContext
-    ): LocalDateTime = (json.fromEpochInstant().takeIf { it.isSuccess }
-        ?: json.fromCustomIsoDateTime().takeIf { it.isSuccess }
-        ?: json.fromIsoDateTime().takeIf { it.isSuccess })
-        ?.getOrNull()
-        ?: throw DateTimeParseException("Unregistered date format", json.asString, 0)
+    ): LocalDateTime = parsers.map { it(json) }
+        .find { it != null }
+        ?: let {
+            val e = DateTimeParseException("Unregistered date format", json.asString, 0)
+            Log.e(
+                "DATE_TIME_SERDE",
+                "LocalDateTimeCustomDeserializer deserialize error on ${json.asString}",
+                e
+            )
+            throw e
+        }
 
-    private fun JsonElement.fromEpochInstant() = runCatching {
-        LocalDateTime.ofInstant(Instant.ofEpochMilli(this.asLong), ZoneId.systemDefault())
+    private fun fromEpochInstant(): (JsonElement) -> LocalDateTime? = {
+        runCatching {
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(it.asLong), ZoneId.systemDefault())
+        }.getOrNull()
     }
 
-    private fun JsonElement.fromIsoDateTime() = runCatching {
-        LocalDateTime.parse(this.asString, DateTimeFormatter.ISO_INSTANT)
+    private fun fromIsoDateTime(): (JsonElement) -> LocalDateTime? = {
+        runCatching {
+            LocalDateTime.parse(it.asString, DateTimeFormatter.ISO_INSTANT)
+        }.getOrNull()
     }
 
-    private fun JsonElement.fromCustomIsoDateTime() = runCatching {
-        LocalDateTime.parse(this.asString, isoDateFormatter)
+    private fun fromCustomIsoDateTime(): (JsonElement) -> LocalDateTime? = {
+        runCatching {
+            LocalDateTime.parse(it.asString, isoDateFormatter)
+        }.getOrNull()
     }
 }
