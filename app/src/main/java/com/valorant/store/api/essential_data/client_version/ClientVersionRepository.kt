@@ -18,7 +18,7 @@ object ClientVersionRepository : Repository<ClientVersionApi>(ClientVersionApi::
 
 object ClientVersionMapper {
     fun toClientVersionEntity(clientVersionDto: ClientVersionDto): Result<ClientVersionEntity> =
-        ClientVersionEntity.of(clientVersionDto.data.version).let { Result.success(it) }
+        ClientVersionEntity.of(clientVersionDto.data.riotClientVersion).let { Result.success(it) }
 }
 
 data class ClientVersionEntity(val version: String) {

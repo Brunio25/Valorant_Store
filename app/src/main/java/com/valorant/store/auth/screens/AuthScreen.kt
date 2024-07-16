@@ -67,7 +67,9 @@ private fun onRedirectViewInterceptorCreator(
 
 @Composable
 private fun AuthWebView(
-    url: String, onRedirectViewInterceptor: (String) -> Boolean, viewModel: PageLoadingViewModel
+    url: String,
+    onRedirectViewInterceptor: (String) -> Boolean,
+    viewModel: PageLoadingViewModel
 ) {
     AndroidView(modifier = Modifier
         .fillMaxSize()
@@ -100,7 +102,8 @@ private fun AuthWebView(
                 WebView.setWebContentsDebuggingEnabled(true) // TODO: Remove?
 
                 webViewClient = AuthWebViewClient(
-                    onRedirectViewInterceptor = onRedirectViewInterceptor, viewModel = viewModel
+                    onRedirectViewInterceptor = onRedirectViewInterceptor,
+                    viewModel = viewModel
                 )
 
                 loadUrl(url)

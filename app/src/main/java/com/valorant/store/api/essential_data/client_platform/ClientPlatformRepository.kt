@@ -11,7 +11,7 @@ object ClientPlatformRepository {
     fun getClientPlatform() = clientPlatform.toBase64().let { ClientPlatformEntity.of(it) }
 
     private fun ClientPlatformDTO.toBase64() = gson.toJson(this).encodeToByteArray()
-        .let { Base64.encode(it, Base64.DEFAULT) }
+        .let { Base64.encode(it, Base64.NO_WRAP) }
         .toString(Charsets.UTF_8)
 }
 
