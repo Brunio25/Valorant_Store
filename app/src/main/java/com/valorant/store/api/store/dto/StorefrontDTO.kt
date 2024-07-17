@@ -72,7 +72,7 @@ data class BundleDTO(
     @SerializedName("TotalDiscountedCost")
     val totalDiscountedCost: Map<UUID, Int>?,
     @SerializedName("TotalDiscountPercent")
-    val totalDiscountPercent: Int,
+    val totalDiscountPercent: Double,
     @SerializedName("DurationRemainingInSeconds")
     val durationRemainingInSeconds: Long,
     @SerializedName("WholesaleOnly")
@@ -87,7 +87,7 @@ data class ItemDTO(
     @SerializedName("CurrencyID")
     val currencyID: UUID,
     @SerializedName("DiscountPercent")
-    val discountPercent: Int,
+    val discountPercent: Double,
     @SerializedName("DiscountedPrice")
     val discountedPrice: Int,
     @SerializedName("IsPromoItem")
@@ -109,7 +109,7 @@ data class ItemOfferDTO(
     @SerializedName("Offer")
     val offer: OfferDTO,
     @SerializedName("DiscountPercent")
-    val discountPercent: Int,
+    val discountPercent: Double,
     @SerializedName("DiscountedCost")
     val discountedCost: Map<UUID, Int>
 )
@@ -182,7 +182,7 @@ data class PurchaseInformationDTO(
     @SerializedName("DiscountedCost")
     val discountedCost: Map<UUID, Int>,
     @SerializedName("DiscountedPercentage")
-    val discountedPercentage: Int,
+    val discountedPercentage: Double,
     @SerializedName("Rewards")
     val rewards: List<Any>, // TODO
     @SerializedName("AdditionalContext")

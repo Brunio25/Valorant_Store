@@ -7,14 +7,12 @@ import com.google.gson.JsonElement
 import java.lang.reflect.Type
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
 private val isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'")
 
-// 0001-01-01T00:00:00Z
-// 2011-12-03T10:15:30Z
 class LocalDateTimeCustomDeserializer : JsonDeserializer<LocalDateTime> {
     private val parsers = listOf(
         fromEpochInstant(),
@@ -40,13 +38,13 @@ class LocalDateTimeCustomDeserializer : JsonDeserializer<LocalDateTime> {
 
     private fun fromEpochInstant(): (JsonElement) -> LocalDateTime? = {
         runCatching {
-            LocalDateTime.ofInstant(Instant.ofEpochMilli(it.asLong), ZoneId.systemDefault())
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(it.asLong), ZoneOffset.UTC)
         }.getOrNull()
     }
 
     private fun fromIsoDateTime(): (JsonElement) -> LocalDateTime? = {
         runCatching {
-            LocalDateTime.parse(it.asString, DateTimeFormatter.ISO_INSTANT)
+            LocalDateTime.ofInstant(Instant.parse(it.asString), ZoneOffset.UTC)
         }.getOrNull()
     }
 
