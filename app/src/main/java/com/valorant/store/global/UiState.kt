@@ -11,5 +11,12 @@ sealed class UiState<out T> {
             is T -> Success(value)
             else -> Error(Exception("Wrong ClassParameter for UiState"))
         }
+
+        inline fun <reified T> of(result: Result<T>): UiState<T> =
+            when (val value = result.getOrElse { it }) {
+                is Throwable -> Error(value)
+                is T -> Success(value)
+                else -> Error(Exception("Wrong ClassParameter for UiState"))
+            }
     }
 }

@@ -2,34 +2,41 @@ package com.valorant.store.main.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.valorant.store.api.riot.store.StoreRepository
+import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.riot.store.dto.StorefrontDTO
 import com.valorant.store.api.state_control.RiotStoreState
+import com.valorant.store.api.val_api.skin_levels.SkinLevelBatchEntity
+import com.valorant.store.api.val_api.skin_levels.SkinLevelRepository
 import com.valorant.store.global.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlin.concurrent.Volatile
+import kotlinx.coroutines.launch
 
 class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
-    private val _storefront = MutableStateFlow<UiState<StorefrontDTO>>(UiState.Loading)
-    val storefront: StateFlow<UiState<StorefrontDTO>> = _storefront
+    private val _skinBatchLevels = MutableStateFlow<UiState<SkinLevelBatchEntity>>(UiState.Loading)
+    val skinBatchLevels: StateFlow<UiState<SkinLevelBatchEntity>> = _skinBatchLevels
 
-    @Volatile
-    private lateinit var storeRepository: StoreRepository
+    init {
+        viewModelScope.launch {
+            riotStoreState.riotStore.collect { riotStore ->
+                when (riotStore) {
+                    is UiState.Loading -> {}
+                    is UiState.Success -> loadSkinInfo(riotStore.data)
+                    is UiState.Error -> {
+                        _skinBatchLevels.value = UiState.Error(riotStore.exception)
+                    }
+                }
+            }
+        }
+    }
 
-//    init {
-//        viewModelScope.launch {
-//            riotStoreEssentialDataState.riotStoreEssentialData.collect { essentialData ->
-//                when (essentialData) {
-//                    is UiState.Loading -> {}
-//                    is UiState.Success -> loadStorefront(essentialData.data)
-//                    is UiState.Error -> {
-//                        _storefront.value = UiState.Error(essentialData.exception)
-//                    }
-//                }
-//            }
-//        }
-//    }
+    private suspend fun loadSkinInfo(storefront: StorefrontDTO) {
+        val levels =
+            storefront.featuredBundle.bundles.flatMap { bundle -> bundle.items.map { it.item.itemID } }
+        val response = SkinLevelRepository.getBatchSkinLevels(levels)
+
+        _skinBatchLevels.value = UiState.of(response)
+    }
 }
 
 class MainScreenViewModelFactory(
