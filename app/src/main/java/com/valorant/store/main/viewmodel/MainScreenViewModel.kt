@@ -1,58 +1,44 @@
 package com.valorant.store.main.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.valorant.store.api.essential_data.EssentialDataEntity
-import com.valorant.store.api.essential_data.EssentialDataState
-import com.valorant.store.api.store.StoreRepository
-import com.valorant.store.api.store.dto.StorefrontDTO
+import com.valorant.store.api.riot.store.StoreRepository
+import com.valorant.store.api.riot.store.dto.StorefrontDTO
+import com.valorant.store.api.state_control.RiotStoreState
 import com.valorant.store.global.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
+import kotlin.concurrent.Volatile
 
-class MainScreenViewModel(essentialDataState: EssentialDataState) : ViewModel() {
+class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
     private val _storefront = MutableStateFlow<UiState<StorefrontDTO>>(UiState.Loading)
     val storefront: StateFlow<UiState<StorefrontDTO>> = _storefront
 
-    private val storeRepository = StoreRepository.getInstance("eu") // TODO hardcoded
+    @Volatile
+    private lateinit var storeRepository: StoreRepository
 
-    init {
-        viewModelScope.launch {
-            essentialDataState.essentialData.collect { essentialData ->
-                when (essentialData) {
-                    is UiState.Loading -> {}
-                    is UiState.Success -> loadStorefront(essentialData.data)
-                    is UiState.Error -> {
-                        _storefront.value = UiState.Error(essentialData.exception)
-                    }
-                }
-            }
-        }
-    }
-
-    private suspend fun loadStorefront(essentialEntity: EssentialDataEntity) {
-        viewModelScope.launch {
-            val response = storeRepository.getStorefront(
-                puuid = essentialEntity.user.puuid,
-                headersMap = essentialEntity.toHeadersMap()
-            )
-
-            Log.w("STORE_STATE", response.toString())
-            _storefront.value = UiState.of { response.getOrElse { it } }
-        }
-    }
+//    init {
+//        viewModelScope.launch {
+//            riotStoreEssentialDataState.riotStoreEssentialData.collect { essentialData ->
+//                when (essentialData) {
+//                    is UiState.Loading -> {}
+//                    is UiState.Success -> loadStorefront(essentialData.data)
+//                    is UiState.Error -> {
+//                        _storefront.value = UiState.Error(essentialData.exception)
+//                    }
+//                }
+//            }
+//        }
+//    }
 }
 
 class MainScreenViewModelFactory(
-    private val essentialDataState: EssentialDataState
+    private val riotStoreState: RiotStoreState
 ) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(MainScreenViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return MainScreenViewModel(essentialDataState) as T
+            return MainScreenViewModel(riotStoreState) as T
         }
 
         throw IllegalArgumentException("Unknown ViewModel class")

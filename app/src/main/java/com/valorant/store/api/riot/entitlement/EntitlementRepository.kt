@@ -1,7 +1,7 @@
-package com.valorant.store.api.essential_data.entitlement
+package com.valorant.store.api.riot.entitlement
 
 import com.valorant.store.api.Repository
-import com.valorant.store.api.essential_data.entitlement.dto.EntitlementDTO
+import com.valorant.store.api.riot.entitlement.dto.EntitlementDTO
 
 object EntitlementRepository : Repository<EntitlementApi>(EntitlementApi::class.java) {
     override val baseUrl = "https://entitlements.auth.riotgames.com"

@@ -1,7 +1,7 @@
-package com.valorant.store.api.essential_data.user
+package com.valorant.store.api.riot.user
 
 import com.valorant.store.api.Repository
-import com.valorant.store.api.essential_data.user.dto.UserInfoDTO
+import com.valorant.store.api.riot.user.dto.UserInfoDTO
 import retrofit2.Response
 import java.util.UUID
 
@@ -15,8 +15,9 @@ object UserRepository : Repository<UserApi>(UserApi::class.java) {
         Result.failure(e)
     }
 
-    private fun Response<UserInfoDTO>.getResult() =
-        takeIf { isSuccessful }?.extractBody() ?: let { Result.failure(Exception(it.message())) }
+    private fun Response<UserInfoDTO>.getResult() = takeIf { isSuccessful }
+        ?.extractBody()
+        ?: let { Result.failure(Exception(it.message())) }
 
     private fun Response<UserInfoDTO>.extractBody() = body()
         ?.let { UserMapper.toUserEntity(it) }

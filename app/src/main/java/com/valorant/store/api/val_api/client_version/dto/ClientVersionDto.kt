@@ -1,4 +1,4 @@
-package com.valorant.store.api.essential_data.client_version.dto
+package com.valorant.store.api.val_api.client_version.dto
 
 data class ClientVersionDto(
     val status: String,

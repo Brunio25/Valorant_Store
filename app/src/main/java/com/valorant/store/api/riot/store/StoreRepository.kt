@@ -1,7 +1,7 @@
-package com.valorant.store.api.store
+package com.valorant.store.api.riot.store
 
 import com.valorant.store.api.Repository
-import com.valorant.store.api.store.dto.StorefrontDTO
+import com.valorant.store.api.riot.store.dto.StorefrontDTO
 import java.util.UUID
 import kotlin.concurrent.Volatile
 

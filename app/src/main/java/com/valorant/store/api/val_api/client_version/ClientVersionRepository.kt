@@ -1,7 +1,7 @@
-package com.valorant.store.api.essential_data.client_version
+package com.valorant.store.api.val_api.client_version
 
 import com.valorant.store.api.Repository
-import com.valorant.store.api.essential_data.client_version.dto.ClientVersionDto
+import com.valorant.store.api.val_api.client_version.dto.ClientVersionDto
 
 object ClientVersionRepository : Repository<ClientVersionApi>(ClientVersionApi::class.java, false) {
     override val baseUrl = "https://valorant-api.com/"

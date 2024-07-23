@@ -1,8 +1,8 @@
-package com.valorant.store.api.essential_data.client_platform
+package com.valorant.store.api.client_platform
 
 import android.util.Base64
 import com.google.gson.GsonBuilder
-import com.valorant.store.api.essential_data.client_platform.dto.ClientPlatformDTO
+import com.valorant.store.api.client_platform.dto.ClientPlatformDTO
 
 object ClientPlatformRepository {
     private val gson = GsonBuilder().setPrettyPrinting().create()
@@ -10,7 +10,7 @@ object ClientPlatformRepository {
 
     fun getClientPlatform() = clientPlatform.toBase64().let { ClientPlatformEntity.of(it) }
 
-    private fun ClientPlatformDTO.toBase64() = gson.toJson(this).encodeToByteArray()
+    private fun ClientPlatformDTO.toBase64() = com.valorant.store.api.client_platform.ClientPlatformRepository.gson.toJson(this).encodeToByteArray()
         .let { Base64.encode(it, Base64.NO_WRAP) }
         .toString(Charsets.UTF_8)
 }

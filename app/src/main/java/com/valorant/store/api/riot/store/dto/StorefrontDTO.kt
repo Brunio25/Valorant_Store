@@ -1,4 +1,4 @@
-package com.valorant.store.api.store.dto
+package com.valorant.store.api.riot.store.dto
 
 import com.google.gson.annotations.SerializedName
 import java.time.LocalDateTime
@@ -58,7 +58,7 @@ data class PluginStoreDTO(
 
 data class BundleDTO(
     @SerializedName("ID")
-    val iD: UUID,
+    val id: UUID,
     @SerializedName("DataAssetID")
     val dataAssetID: UUID,
     @SerializedName("CurrencyID")

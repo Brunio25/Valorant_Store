@@ -1,7 +1,7 @@
-package com.valorant.store.api.store
+package com.valorant.store.api.riot.store
 
 import com.valorant.store.api.Api
-import com.valorant.store.api.store.dto.StorefrontDTO
+import com.valorant.store.api.riot.store.dto.StorefrontDTO
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.HeaderMap

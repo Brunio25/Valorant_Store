@@ -1,4 +1,4 @@
-package com.valorant.store.api.essential_data.client_platform.dto
+package com.valorant.store.api.client_platform.dto
 
 data class ClientPlatformDTO(
     val platformType: String = "PC",
