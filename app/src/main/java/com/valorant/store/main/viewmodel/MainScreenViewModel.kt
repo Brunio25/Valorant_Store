@@ -4,7 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.riot.store.dto.StorefrontDTO
-import com.valorant.store.api.state_control.RiotStoreState
+import com.valorant.store.api.state_control.riot_store.RiotStoreState
+import com.valorant.store.api.util.ItemType
 import com.valorant.store.api.val_api.skin_levels.SkinLevelBatchEntity
 import com.valorant.store.api.val_api.skin_levels.SkinLevelRepository
 import com.valorant.store.global.UiState
@@ -31,10 +32,11 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
     }
 
     private suspend fun loadSkinInfo(storefront: StorefrontDTO) {
-        val levels =
-            storefront.featuredBundle.bundles.flatMap { bundle -> bundle.items.map { it.item.itemID } }
-        val response = SkinLevelRepository.getBatchSkinLevels(levels)
+        val levels = storefront.featuredBundle.bundle.items.map { it.item }
+            .filter { it.itemTypeID == ItemType.SKIN_LEVEL_CONTENT }
+            .map { it.itemID }
 
+        val response = SkinLevelRepository.getBatchSkinLevels(levels)
         _skinBatchLevels.value = UiState.of(response)
     }
 }

@@ -10,7 +10,7 @@ import retrofit2.Response
 import java.util.UUID
 
 object SkinLevelRepository : Repository<SkinLevelApi>(SkinLevelApi::class.java, false) {
-    override val baseUrl = "https://valorant-api.com/v1/weapons/skinlevels/"
+    override val baseUrl = "https://valorant-api.com/v1/"
 
     suspend fun getBatchSkinLevels(skinLevelIds: List<UUID>): Result<SkinLevelBatchEntity> =
         coroutineScope {
@@ -30,12 +30,12 @@ object SkinLevelRepository : Repository<SkinLevelApi>(SkinLevelApi::class.java, 
     }.getOrElse { Result.failure(Exception("Null response body")) }
 
     private fun List<Response<SkinLevelDTO>>.batchResult(): Result<SkinLevelBatchEntity> =
-        when (anyFailures()) {
+        when (allSuccessful()) {
             true -> mapNotNull { it.body() }.let { SkinLevelMapper.toSkinLevelBatchEntity(it) }
             false -> first { !it.isSuccessful }.let { Result.failure(Exception(it.message())) }
         }
 
-    private fun <T> List<Response<T>>.anyFailures() = any { !it.isSuccessful }
+    private fun <T> List<Response<T>>.allSuccessful() = all { it.isSuccessful }
 }
 
 object SkinLevelMapper {
@@ -72,9 +72,9 @@ data class SkinLevelBatchEntity(
 
 data class SkinLevelEntity(
     val uuid: UUID,
-    val displayName: String,
+    val displayName: String?,
     val levelItem: String?,
-    val displayIcon: Uri,
+    val displayIcon: Uri?,
     val streamedVideo: Uri?,
     val assetPath: String
 )

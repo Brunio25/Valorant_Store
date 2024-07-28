@@ -1,4 +1,4 @@
-package com.valorant.store.api.state_control
+package com.valorant.store.api.state_control.riot_store
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -10,7 +10,7 @@ import com.valorant.store.api.riot.entitlement.EntitlementRepository
 import com.valorant.store.api.riot.store.StoreRepository
 import com.valorant.store.api.riot.store.dto.StorefrontDTO
 import com.valorant.store.api.riot.user.UserRepository
-import com.valorant.store.api.state_control.entity.RiotStoreEssentialDataEntity
+import com.valorant.store.api.state_control.riot_store.entity.RiotStoreEssentialDataEntity
 import com.valorant.store.auth.AuthState
 import com.valorant.store.global.UiState
 import kotlinx.coroutines.async

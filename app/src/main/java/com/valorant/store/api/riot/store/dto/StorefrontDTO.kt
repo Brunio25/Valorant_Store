@@ -1,6 +1,7 @@
 package com.valorant.store.api.riot.store.dto
 
 import com.google.gson.annotations.SerializedName
+import com.valorant.store.api.util.ItemType
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -96,7 +97,7 @@ data class ItemDTO(
 
 data class ItemInfoDTO(
     @SerializedName("ItemTypeID")
-    val itemTypeID: UUID,
+    val itemTypeID: ItemType,
     @SerializedName("ItemID")
     val itemID: UUID,
     @SerializedName("Amount")
@@ -116,7 +117,7 @@ data class ItemOfferDTO(
 
 data class RewardDTO(
     @SerializedName("ItemTypeID")
-    val itemTypeID: UUID,
+    val itemTypeID: ItemType,
     @SerializedName("ItemID")
     val itemID: UUID,
     @SerializedName("Quantity")

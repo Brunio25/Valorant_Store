@@ -8,6 +8,6 @@ import retrofit2.http.Path
 import java.util.UUID
 
 interface SkinLevelApi : Api {
-    @GET("/{skinLevelId}")
+    @GET("weapons/skinlevels/{skinLevelId}")
     suspend fun skinLevel(@Path("skinLevelId") skinLevelId: UUID): Response<SkinLevelDTO>
 }

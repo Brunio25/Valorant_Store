@@ -11,9 +11,9 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 
-private val isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'")
-
 class LocalDateTimeCustomDeserializer : JsonDeserializer<LocalDateTime> {
+    private val isoDateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSS'Z'")
+
     private val parsers = listOf(
         fromEpochInstant(),
         fromIsoDateTime(),

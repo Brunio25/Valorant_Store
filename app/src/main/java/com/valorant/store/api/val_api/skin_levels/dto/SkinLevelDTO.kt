@@ -12,7 +12,7 @@ data class SkinLevelData(
     val uuid: UUID,
     val displayName: String,
     val levelItem: String?,
-    val displayIcon: Uri,
+    val displayIcon: Uri?,
     val streamedVideo: Uri?,
     val assetPath: String
 )

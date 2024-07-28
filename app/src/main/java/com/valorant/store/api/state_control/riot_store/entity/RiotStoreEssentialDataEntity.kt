@@ -1,4 +1,4 @@
-package com.valorant.store.api.state_control.entity
+package com.valorant.store.api.state_control.riot_store.entity
 
 import com.valorant.store.api.client_platform.ClientPlatformEntity
 import com.valorant.store.api.riot.entitlement.EntitlementEntity
