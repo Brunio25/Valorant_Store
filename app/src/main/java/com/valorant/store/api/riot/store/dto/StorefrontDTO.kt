@@ -1,7 +1,7 @@
 package com.valorant.store.api.riot.store.dto
 
 import com.google.gson.annotations.SerializedName
-import com.valorant.store.api.util.ItemType
+import com.valorant.store.api.config.ItemType
 import java.time.LocalDateTime
 import java.util.UUID
 

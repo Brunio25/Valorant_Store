@@ -3,10 +3,10 @@ package com.valorant.store.api
 import android.net.Uri
 import com.google.gson.GsonBuilder
 import com.valorant.store.api.interceptors.AuthInterceptor
-import com.valorant.store.api.util.ItemType
-import com.valorant.store.api.util.ItemTypeCustomDeserializer
-import com.valorant.store.api.util.LocalDateTimeCustomDeserializer
-import com.valorant.store.api.util.UriCustomDeserializer
+import com.valorant.store.api.config.ItemType
+import com.valorant.store.api.config.ItemTypeCustomDeserializer
+import com.valorant.store.api.config.LocalDateTimeCustomDeserializer
+import com.valorant.store.api.config.UriCustomDeserializer
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory

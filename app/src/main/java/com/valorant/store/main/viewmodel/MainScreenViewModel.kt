@@ -3,19 +3,21 @@ package com.valorant.store.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.valorant.store.api.config.ItemType
 import com.valorant.store.api.riot.store.dto.StorefrontDTO
 import com.valorant.store.api.state_control.riot_store.RiotStoreState
-import com.valorant.store.api.util.ItemType
-import com.valorant.store.api.val_api.skin_levels.SkinLevelBatchEntity
-import com.valorant.store.api.val_api.skin_levels.SkinLevelRepository
+import com.valorant.store.api.val_api.skins.SkinsRepository
+import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
 import com.valorant.store.global.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
-    private val _skinBatchLevels = MutableStateFlow<UiState<SkinLevelBatchEntity>>(UiState.Loading)
-    val skinBatchLevels: StateFlow<UiState<SkinLevelBatchEntity>> = _skinBatchLevels
+    private val _skinBatchLevels = MutableStateFlow<UiState<SkinBatchEntity>>(UiState.Loading)
+    val skinBatchLevels: StateFlow<UiState<SkinBatchEntity>> = _skinBatchLevels
+
+    private val skinsRepository = SkinsRepository
 
     init {
         viewModelScope.launch {
@@ -32,11 +34,18 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
     }
 
     private suspend fun loadSkinInfo(storefront: StorefrontDTO) {
+        skinsRepository.skinsLoaded.await().takeIf { it.isFailure }
+            ?.exceptionOrNull()
+            ?.let {
+                _skinBatchLevels.value = UiState.Error(it)
+                return
+            }
+
         val levels = storefront.featuredBundle.bundle.items.map { it.item }
             .filter { it.itemTypeID == ItemType.SKIN_LEVEL_CONTENT }
             .map { it.itemID }
 
-        val response = SkinLevelRepository.getBatchSkinLevels(levels)
+        val response = skinsRepository.getBatchSkins(levels)
         _skinBatchLevels.value = UiState.of(response)
     }
 }

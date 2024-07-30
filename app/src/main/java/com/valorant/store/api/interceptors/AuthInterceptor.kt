@@ -1,9 +1,8 @@
 package com.valorant.store.api.interceptors
 
 import android.util.Log
-import com.valorant.store.auth.AuthState
-import com.valorant.store.global.UiState
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.Response
 import kotlin.concurrent.Volatile
 
@@ -27,11 +26,14 @@ object AuthInterceptor : Interceptor {
         }
 
         val requestWithAuth = chain.request().newBuilder()
-            .addHeader("Authorization", "Bearer ${tokenProvider?.let { it() }}")
+            .oAuth(token)
             .build()
 
         return chain.proceed(requestWithAuth)
     }
+
+    private fun Request.Builder.oAuth(token: String) =
+        addHeader("Authorization", "Bearer $token")
 }
 
 class TokenMissingException : RuntimeException("Token not set")

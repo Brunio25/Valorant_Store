@@ -51,7 +51,7 @@ class RiotStoreState(authState: AuthState) : ViewModel() {
         )
 
         Log.d("STORE_STATE", response.toString())
-        _riotStore.value = UiState.of { response.getOrElse { it } }
+        _riotStore.value = UiState.of(response)
     }
 
     private suspend fun loadRiotStoreEssentialData(): Result<RiotStoreEssentialDataEntity> =

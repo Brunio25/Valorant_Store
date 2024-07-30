@@ -1,4 +1,4 @@
-package com.valorant.store.api.util
+package com.valorant.store.api.config
 
 import android.util.Log
 import com.google.gson.JsonDeserializationContext

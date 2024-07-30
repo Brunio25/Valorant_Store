@@ -1,14 +1,19 @@
-package com.valorant.store.api.val_api.skin_levels.dto
+package com.valorant.store.api.val_api.skins.dto
 
 import android.net.Uri
 import java.util.UUID
 
-data class SkinLevelDTO(
+data class SkinLevelBatchWrapperDTO(
     val status: Int,
-    val data: SkinLevelData
+    val data: List<SkinLevelDTO>
 )
 
-data class SkinLevelData(
+data class SkinLevelWrapperDTO(
+    val status: Int,
+    val data: SkinLevelDTO
+)
+
+data class SkinLevelDTO(
     val uuid: UUID,
     val displayName: String,
     val levelItem: String?,
