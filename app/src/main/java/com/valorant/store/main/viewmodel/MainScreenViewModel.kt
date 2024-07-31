@@ -1,7 +1,6 @@
 package com.valorant.store.main.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.config.ItemType
 import com.valorant.store.api.riot.store.dto.StorefrontDTO
@@ -47,18 +46,5 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
 
         val response = skinsRepository.getBatchSkins(levels)
         _skinBatchLevels.value = UiState.of(response)
-    }
-}
-
-class MainScreenViewModelFactory(
-    private val riotStoreState: RiotStoreState
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(MainScreenViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return MainScreenViewModel(riotStoreState) as T
-        }
-
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

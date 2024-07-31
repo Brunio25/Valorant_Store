@@ -17,10 +17,11 @@ import com.valorant.store.R
 import com.valorant.store.auth.AuthState
 import com.valorant.store.auth.util.buildUrl
 import com.valorant.store.auth.viewmodel.PageLoadingViewModel
+import com.valorant.store.global.ViewModelProvider
 import com.valorant.store.navigation.NavRoutes
 
 @Composable
-fun AuthScreen(navController: NavController, authState: AuthState) {
+fun AuthScreen(navController: NavController) {
     val viewModel: PageLoadingViewModel = viewModel()
 
     val riotDomain = stringResource(id = R.string.auth_riot_domain)
@@ -32,7 +33,7 @@ fun AuthScreen(navController: NavController, authState: AuthState) {
         registeredRedirectUri = registeredRedirectUri,
         tokenIdentifier = tokenIdentifier,
         navController = navController,
-        authState = authState
+        authState = ViewModelProvider.authState
     )
 
     Box(modifier = Modifier.fillMaxSize()) {

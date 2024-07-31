@@ -2,7 +2,6 @@ package com.valorant.store.api.state_control.riot_store
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.client_platform.ClientPlatformRepository
 import com.valorant.store.api.val_api.client_version.ClientVersionRepository
@@ -79,18 +78,5 @@ class RiotStoreState(authState: AuthState) : ViewModel() {
 
     private suspend fun loadClientVersion() = ClientVersionRepository.getClientVersion().also {
         Log.d("RIOT_STORE_CL_VERSION", it.toString())
-    }
-}
-
-class RiotStoreStateFactory(
-    private val authState: AuthState
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(RiotStoreState::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return RiotStoreState(authState) as T
-        }
-
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
