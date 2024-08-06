@@ -33,7 +33,7 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
     }
 
     private suspend fun loadSkinInfo(storefront: StorefrontDTO) {
-        skinsRepository.skinsLoaded.await().takeIf { it.isFailure }
+        skinsRepository.cachesLoaded.await().takeIf { it.isFailure }
             ?.exceptionOrNull()
             ?.let {
                 _skinBatchLevels.value = UiState.Error(it)

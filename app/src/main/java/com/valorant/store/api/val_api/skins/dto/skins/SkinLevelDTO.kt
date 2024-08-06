@@ -1,4 +1,4 @@
-package com.valorant.store.api.val_api.skins.dto
+package com.valorant.store.api.val_api.skins.dto.skins
 
 import android.net.Uri
 import java.util.UUID
