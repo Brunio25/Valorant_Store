@@ -3,7 +3,7 @@ package com.valorant.store.main.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.config.ItemType
-import com.valorant.store.api.riot.store.dto.StorefrontDTO
+import com.valorant.store.api.riot.store.entity.StorefrontEntity
 import com.valorant.store.api.state_control.riot_store.RiotStoreState
 import com.valorant.store.api.val_api.skins.SkinsRepository
 import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
@@ -32,7 +32,7 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
         }
     }
 
-    private suspend fun loadSkinInfo(storefront: StorefrontDTO) {
+    private suspend fun loadSkinInfo(storefront: StorefrontEntity) {
         skinsRepository.cachesLoaded.await().takeIf { it.isFailure }
             ?.exceptionOrNull()
             ?.let {
@@ -40,9 +40,13 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
                 return
             }
 
-        val levels = storefront.featuredBundle.bundle.items.map { it.item }
-            .filter { it.itemTypeID == ItemType.SKIN_LEVEL_CONTENT }
-            .map { it.itemID }
+        val bundleLevels = storefront.bundle.items
+            .filter { it.item.itemType == ItemType.SKIN_LEVEL_CONTENT }
+            .map { it.item.itemId }
+
+        val levels = bundleLevels + storefront.singleItemOffers.items
+            .filter { it.item.itemType == ItemType.SKIN_LEVEL_CONTENT }
+            .map { it.item.itemId }
 
         val response = skinsRepository.getBatchSkins(levels)
         _skinBatchLevels.value = UiState.of(response)

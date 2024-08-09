@@ -8,12 +8,11 @@ import java.util.UUID
 object UserRepository : Repository<UserApi>(UserApi::class.java) {
     override val baseUrl = "https://auth.riotgames.com"
 
-    suspend fun getUserInfo(): Result<UserEntity> = try {
+    suspend fun getUserInfo(): Result<UserEntity> = runCatching {
         val response = apiClient.userInfo()
         response.getResult()
-    } catch (e: Exception) {
-        Result.failure(e)
-    }
+    }.getOrElse { Result.failure(it) }
+
 
     private fun Response<UserInfoDTO>.getResult() = takeIf { isSuccessful }
         ?.extractBody()
@@ -24,14 +23,10 @@ object UserRepository : Repository<UserApi>(UserApi::class.java) {
         ?: Result.failure(Exception("Null response body"))
 }
 
-object UserMapper {
+private object UserMapper {
     fun toUserEntity(userInfoDTO: UserInfoDTO): Result<UserEntity> =
-        UserEntity.of(userInfoDTO.sub, userInfoDTO.affinity["pp"], userInfoDTO.acct.gameName)
+        UserEntity(userInfoDTO.sub, userInfoDTO.affinity["pp"], userInfoDTO.acct.gameName)
             .let { Result.success(it) }
 }
 
-data class UserEntity(val puuid: UUID, val shard: String?, val gamerName: String) {
-    companion object {
-        fun of(puuid: UUID, shard: String?, gamerName: String) = UserEntity(puuid, shard, gamerName)
-    }
-}
+data class UserEntity(val puuid: UUID, val shard: String?, val gamerName: String)

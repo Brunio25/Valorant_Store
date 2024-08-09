@@ -4,12 +4,12 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.client_platform.ClientPlatformRepository
-import com.valorant.store.api.val_api.client_version.ClientVersionRepository
 import com.valorant.store.api.riot.entitlement.EntitlementRepository
 import com.valorant.store.api.riot.store.StoreRepository
-import com.valorant.store.api.riot.store.dto.StorefrontDTO
+import com.valorant.store.api.riot.store.entity.StorefrontEntity
 import com.valorant.store.api.riot.user.UserRepository
 import com.valorant.store.api.state_control.riot_store.entity.RiotStoreEssentialDataEntity
+import com.valorant.store.api.val_api.client_version.ClientVersionRepository
 import com.valorant.store.auth.AuthState
 import com.valorant.store.global.UiState
 import kotlinx.coroutines.async
@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class RiotStoreState(authState: AuthState) : ViewModel() {
-    private val _riotStore = MutableStateFlow<UiState<StorefrontDTO>>(UiState.Loading)
-    val riotStore: StateFlow<UiState<StorefrontDTO>> = _riotStore
+    private val _riotStore = MutableStateFlow<UiState<StorefrontEntity>>(UiState.Loading)
+    val riotStore: StateFlow<UiState<StorefrontEntity>> = _riotStore
 
     @Volatile
     private lateinit var storeRepository: StoreRepository

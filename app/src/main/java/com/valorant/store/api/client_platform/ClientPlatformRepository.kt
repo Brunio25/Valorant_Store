@@ -10,7 +10,7 @@ object ClientPlatformRepository {
 
     fun getClientPlatform() = clientPlatform.toBase64().let { ClientPlatformEntity.of(it) }
 
-    private fun ClientPlatformDTO.toBase64() = com.valorant.store.api.client_platform.ClientPlatformRepository.gson.toJson(this).encodeToByteArray()
+    private fun ClientPlatformDTO.toBase64() = gson.toJson(this).encodeToByteArray()
         .let { Base64.encode(it, Base64.NO_WRAP) }
         .toString(Charsets.UTF_8)
 }

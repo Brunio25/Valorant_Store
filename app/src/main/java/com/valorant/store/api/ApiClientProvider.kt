@@ -29,7 +29,8 @@ object ClientProvider {
 
     private fun createRetrofitClient(baseUrl: String, includeAuthInterceptor: Boolean): Retrofit =
         Retrofit.Builder().baseUrl(baseUrl)
-            .addConverterFactory(GsonConverterFactory.create(createGson())).client(
+            .addConverterFactory(createGson())
+            .client(
                 OkHttpClient.Builder()
                     .also {
                         if (includeAuthInterceptor) {
@@ -43,4 +44,5 @@ object ClientProvider {
         .registerTypeAdapter(Uri::class.java, UriCustomDeserializer())
         .registerTypeAdapter(ItemType::class.java, ItemTypeCustomDeserializer())
         .create()
+        .let { GsonConverterFactory.create(it) }
 }

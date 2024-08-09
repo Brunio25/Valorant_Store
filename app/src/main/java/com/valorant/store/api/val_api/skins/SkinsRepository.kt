@@ -159,7 +159,7 @@ open class SkinsRepositoryInitializer : Repository<SkinsApi>(SkinsApi::class.jav
     }
 }
 
-object SkinsMapper {
+private object SkinsMapper {
     fun toSkinMapEntity(skinsBatchWrapperDTO: SkinsBatchWrapperDTO): SkinMapEntity =
         skinsBatchWrapperDTO.data.associate {
             it.levels.first().uuid to toSkinEntity(it)

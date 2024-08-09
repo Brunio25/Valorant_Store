@@ -69,9 +69,9 @@ data class BundleDTO(
     @SerializedName("ItemOffers")
     val itemOffers: List<ItemOfferDTO>?,
     @SerializedName("TotalBaseCost")
-    val totalBaseCost: Map<UUID, Int>?,
+    val totalBaseCost: Map<UUID, Int>,
     @SerializedName("TotalDiscountedCost")
-    val totalDiscountedCost: Map<UUID, Int>?,
+    val totalDiscountedCost: Map<UUID, Int>,
     @SerializedName("TotalDiscountPercent")
     val totalDiscountPercent: Double,
     @SerializedName("DurationRemainingInSeconds")
