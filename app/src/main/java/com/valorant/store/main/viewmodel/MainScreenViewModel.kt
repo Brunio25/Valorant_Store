@@ -44,9 +44,7 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
             .filter { it.item.itemType == ItemType.SKIN_LEVEL_CONTENT }
             .map { it.item.itemId }
 
-        val levels = bundleLevels + storefront.singleItemOffers.items
-            .filter { it.item.itemType == ItemType.SKIN_LEVEL_CONTENT }
-            .map { it.item.itemId }
+        val levels = bundleLevels + storefront.skinsPanel.items.map { it.item.itemId }
 
         val response = skinsRepository.getBatchSkins(levels)
         _skinBatchLevels.value = UiState.of(response)

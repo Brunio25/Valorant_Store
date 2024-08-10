@@ -5,7 +5,7 @@ import java.util.UUID
 
 data class StorefrontEntity( // TODO: Add accessories and night market?
     val bundle: BundleEntity,
-    val singleItemOffers: SingleItemOffersEntity
+    val skinsPanel: SingleItemOffersEntity
 )
 
 data class BundleEntity(

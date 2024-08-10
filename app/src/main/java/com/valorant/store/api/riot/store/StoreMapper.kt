@@ -21,7 +21,7 @@ object StoreMapper {
             Log.w("STOREFRONT_BUNDLE", "Multiple featureBundles $this")
             toBundleEntity(this)
         },
-        singleItemOffers = toSingleItemOffers(storefrontDTO.skinsPanelLayout)
+        skinsPanel = toSingleItemOffers(storefrontDTO.skinsPanelLayout)
     )
 
     private fun toBundleEntity(bundleDTO: BundleDTO): BundleEntity = with(bundleDTO) {

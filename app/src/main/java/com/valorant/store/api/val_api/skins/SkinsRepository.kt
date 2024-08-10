@@ -23,6 +23,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import retrofit2.Response
 import java.util.UUID
 
 object SkinsRepository : SkinsRepositoryInitializer() {
@@ -70,92 +71,60 @@ open class SkinsRepositoryInitializer : Repository<SkinsApi>(SkinsApi::class.jav
         }
     }
 
-    private suspend fun loadSkins(): Result<SkinMapEntity> {
-        val response = getSkinsFromRemote(setCachedSkins = true)
-
-        response.takeIf { it.isFailure }
-            ?.exceptionOrNull()
-            ?.also { cachesLoaded.complete(Result.failure(it)) }
-            ?.let { Log.e("SKINS_INIT", it.toString()) }
-
-        return response
-    }
-
-    private suspend fun getSkinsFromRemote(setCachedSkins: Boolean = false): Result<SkinMapEntity> =
-        runCatching {
-            val response = apiClient.skins()
-
-            response.takeIf { it.isSuccessful }
-                ?.body()?.let { SkinsMapper.toSkinMapEntity(it) }
-                ?.also {
-                    if (setCachedSkins) {
-                        setCachedSkins(it)
-                    }
-                }?.let { Result.success(it) }
-                ?: Result.failure(Exception(response.message()))
-        }.getOrElse { Result.failure(it) }
+    private suspend fun loadSkins(): Result<SkinMapEntity> = getFromRemote(
+        response = apiClient.skins(),
+        transform = SkinsMapper::toSkinMapEntity,
+        setCache = ::setCachedSkins
+    ).onLoadError("SKINS_INIT")
 
     private suspend fun setCachedSkins(skinMapEntity: SkinMapEntity) {
         _cachedSkins.complete(skinMapEntity)
         Log.d("SKINS_CACHE_LOADED", _cachedSkins.await().isNotEmpty().toString())
     }
 
-    private suspend fun loadCurrencies(): Result<CurrencyMapEntity> {
-        val response = getCurrenciesFromRemote(setCachedCurrencies = true)
-
-        response.takeIf { it.isFailure }
-            ?.exceptionOrNull()
-            ?.let { Log.e("CURRENCIES_INIT", it.toString()) }
-
-        return response
-    }
-
-    private suspend fun getCurrenciesFromRemote(setCachedCurrencies: Boolean = false): Result<CurrencyMapEntity> =
-        runCatching {
-            val response = apiClient.currencies()
-
-            response.takeIf { it.isSuccessful }
-                ?.body()?.let { SkinsMapper.toCurrencyMapEntity(it) }
-                ?.also {
-                    if (setCachedCurrencies) {
-                        setCachedCurrencies(it)
-                    }
-                }?.let { Result.success(it) }
-                ?: Result.failure(Exception(response.message()))
-        }.getOrElse { Result.failure(it) }
+    private suspend fun loadCurrencies(): Result<CurrencyMapEntity> = getFromRemote(
+        response = apiClient.currencies(),
+        transform = SkinsMapper::toCurrencyMapEntity,
+        setCache = ::setCachedCurrencies
+    ).onLoadError("CURRENCIES_INIT")
 
     private suspend fun setCachedCurrencies(currencyMapEntity: CurrencyMapEntity) {
         _cachedCurrencies.complete(currencyMapEntity)
         Log.d("CURRENCY_CACHE_LOADED", _cachedCurrencies.await().isNotEmpty().toString())
     }
 
-    private suspend fun loadContentTiers(): Result<ContentTierMapEntity> {
-        val response = getContentTiersFromRemote(setCachedContentTiers = true)
+    private suspend fun loadContentTiers(): Result<ContentTierMapEntity> = getFromRemote(
+        response = apiClient.contentTiers(),
+        transform = SkinsMapper::toContentTierMapEntity,
+        setCache = ::setCachedContentTiers
+    ).onLoadError("CONTENT_TIERS_INIT")
 
-        response.takeIf { it.isFailure }
-            ?.exceptionOrNull()
-            ?.let { Log.e("CONTENT_TIERS_INIT", it.toString()) }
-
-        return response
-    }
-
-    private suspend fun getContentTiersFromRemote(setCachedContentTiers: Boolean): Result<ContentTierMapEntity> =
-        runCatching {
-            val response = apiClient.contentTiers()
-
-            response.takeIf { it.isSuccessful }
-                ?.body()?.let { SkinsMapper.toContentTierMapEntity(it) }
-                ?.also {
-                    if (setCachedContentTiers) {
-                        setCachedContentTiers(it)
-                    }
-                }?.let { Result.success(it) }
-                ?: Result.failure(Exception(response.message()))
-        }.getOrElse { Result.failure(it) }
 
     private suspend fun setCachedContentTiers(contentTierMapEntity: ContentTierMapEntity) {
         _cachedContentTiers.complete(contentTierMapEntity)
         Log.d("CONTENT_TIERS_CACHE_LOADED", _cachedContentTiers.await().isNotEmpty().toString())
+    }
+
+    private suspend fun <R, T> getFromRemote(
+        response: Response<R>,
+        transform: (R) -> T,
+        setCache: (suspend (T) -> Unit)?
+    ) =
+        runCatching {
+            response.takeIf { it.isSuccessful }
+                ?.body()?.let { transform(it) }
+                ?.also { entity -> setCache?.let { it(entity) } }
+                ?.let { Result.success(it) }
+                ?: Result.failure(Exception(response.message()))
+        }.getOrElse { Result.failure(it) }
+
+    private fun <T> Result<T>.onLoadError(logErrorTag: String): Result<T> {
+        takeIf { it.isFailure }
+            ?.exceptionOrNull()
+            ?.also { cachesLoaded.complete(Result.failure(it)) }
+            ?.let { Log.e(logErrorTag, it.toString()) }
+
+        return this
     }
 }
 
