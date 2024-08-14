@@ -26,26 +26,26 @@ import kotlinx.coroutines.launch
 import retrofit2.Response
 import java.util.UUID
 
-object SkinsRepository : SkinsRepositoryInitializer() {
+object ValInfoRepository : ValInfoRepositoryInitializer() {
     fun getBatchSkins(levelIds: List<UUID>): Result<SkinBatchEntity> = levelIds
-        .map { _cachedSkins[it] ?: return Result.failure(SkinNotFoundException(it)) }
+        .map { _skins[it] ?: return Result.failure(SkinNotFoundException(it)) }
         .let { SkinsMapper.toSkinBatchEntity(it) }
 
 
     fun getSkinByLevelId(levelId: UUID): Result<SkinEntity> =
-        _cachedSkins[levelId]?.let { Result.success(it) } ?: Result.failure(
+        _skins[levelId]?.let { Result.success(it) } ?: Result.failure(
             SkinNotFoundException(levelId)
         )
 }
 
-open class SkinsRepositoryInitializer : Repository<SkinsApi>(SkinsApi::class.java, false) {
+open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::class.java, false) {
     override val baseUrl = "https://valorant-api.com/"
 
     private val repositoryScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
-    protected val _cachedSkins = CompletableDeferred<SkinMapEntity>()
-    protected val _cachedCurrencies = CompletableDeferred<CurrencyMapEntity>()
-    protected val _cachedContentTiers = CompletableDeferred<ContentTierMapEntity>()
+    protected val _skins = CompletableDeferred<SkinMapEntity>()
+    protected val _currencies = CompletableDeferred<CurrencyMapEntity>()
+    protected val _contentTiers = CompletableDeferred<ContentTierMapEntity>()
     val cachesLoaded = CompletableDeferred<Result<Boolean>>()
 
     init {
@@ -78,8 +78,8 @@ open class SkinsRepositoryInitializer : Repository<SkinsApi>(SkinsApi::class.jav
     ).onLoadError("SKINS_INIT")
 
     private suspend fun setCachedSkins(skinMapEntity: SkinMapEntity) {
-        _cachedSkins.complete(skinMapEntity)
-        Log.d("SKINS_CACHE_LOADED", _cachedSkins.await().isNotEmpty().toString())
+        _skins.complete(skinMapEntity)
+        Log.d("SKINS_CACHE_LOADED", _skins.await().isNotEmpty().toString())
     }
 
     private suspend fun loadCurrencies(): Result<CurrencyMapEntity> = getFromRemote(
@@ -89,8 +89,8 @@ open class SkinsRepositoryInitializer : Repository<SkinsApi>(SkinsApi::class.jav
     ).onLoadError("CURRENCIES_INIT")
 
     private suspend fun setCachedCurrencies(currencyMapEntity: CurrencyMapEntity) {
-        _cachedCurrencies.complete(currencyMapEntity)
-        Log.d("CURRENCY_CACHE_LOADED", _cachedCurrencies.await().isNotEmpty().toString())
+        _currencies.complete(currencyMapEntity)
+        Log.d("CURRENCY_CACHE_LOADED", _currencies.await().isNotEmpty().toString())
     }
 
     private suspend fun loadContentTiers(): Result<ContentTierMapEntity> = getFromRemote(
@@ -101,22 +101,21 @@ open class SkinsRepositoryInitializer : Repository<SkinsApi>(SkinsApi::class.jav
 
 
     private suspend fun setCachedContentTiers(contentTierMapEntity: ContentTierMapEntity) {
-        _cachedContentTiers.complete(contentTierMapEntity)
-        Log.d("CONTENT_TIERS_CACHE_LOADED", _cachedContentTiers.await().isNotEmpty().toString())
+        _contentTiers.complete(contentTierMapEntity)
+        Log.d("CONTENT_TIERS_CACHE_LOADED", _contentTiers.await().isNotEmpty().toString())
     }
 
     private suspend fun <R, T> getFromRemote(
         response: Response<R>,
         transform: (R) -> T,
-        setCache: (suspend (T) -> Unit)?
+        setCache: (suspend (T) -> Unit)
     ) =
         runCatching {
             response.takeIf { it.isSuccessful }
                 ?.body()?.let { transform(it) }
-                ?.also { entity -> setCache?.let { it(entity) } }
-                ?.let { Result.success(it) }
-                ?: Result.failure(Exception(response.message()))
-        }.getOrElse { Result.failure(it) }
+                ?.also { entity -> setCache(entity) }
+                ?: throw Exception(response.message())
+        }
 
     private fun <T> Result<T>.onLoadError(logErrorTag: String): Result<T> {
         takeIf { it.isFailure }

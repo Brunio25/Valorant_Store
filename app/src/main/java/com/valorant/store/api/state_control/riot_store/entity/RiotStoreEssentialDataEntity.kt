@@ -16,17 +16,16 @@ class RiotStoreEssentialDataEntity private constructor(
         fun of(
             user: Result<UserEntity>,
             entitlement: Result<EntitlementEntity>,
-            clientVersion: Result<ClientVersionEntity>,
+            clientVersion: ClientVersionEntity,
             clientPlatform: ClientPlatformEntity
         ): Result<RiotStoreEssentialDataEntity> {
             val userSuccess = user.getOrElse { return Result.failure(it) }
             val entitlementSuccess = entitlement.getOrElse { return Result.failure(it) }
-            val clientVersionSuccess = clientVersion.getOrElse { return Result.failure(it) }
 
             return RiotStoreEssentialDataEntity(
                 userSuccess,
                 entitlementSuccess,
-                clientVersionSuccess,
+                clientVersion,
                 clientPlatform
             ).let { Result.success(it) }
         }
@@ -34,7 +33,7 @@ class RiotStoreEssentialDataEntity private constructor(
 
     fun toHeadersMap(): Map<String, String> = mapOf(
         StoreHeaders.ENTITLEMENT to entitlement.entitlementToken,
-        StoreHeaders.CLIENT_VERSION to clientVersion.version,
+        StoreHeaders.CLIENT_VERSION to clientVersion.riotVersion,
         StoreHeaders.CLIENT_PLATFORM to clientPlatform.encodedClientPlatform
     ).mapKeys { it.key.value }
 }

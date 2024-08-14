@@ -7,7 +7,7 @@ import com.valorant.store.api.val_api.skins.dto.skins.SkinsBatchWrapperDTO
 import retrofit2.Response
 import retrofit2.http.GET
 
-interface SkinsApi : Api {
+interface ValInfoApi : Api {
     @GET("/v1/weapons/skins")
     suspend fun skins(): Response<SkinsBatchWrapperDTO>
 

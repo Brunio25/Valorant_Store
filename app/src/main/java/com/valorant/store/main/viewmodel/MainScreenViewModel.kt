@@ -5,27 +5,27 @@ import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.config.ItemType
 import com.valorant.store.api.riot.store.entity.StorefrontEntity
 import com.valorant.store.api.state_control.riot_store.RiotStoreState
-import com.valorant.store.api.val_api.skins.SkinsRepository
+import com.valorant.store.api.val_api.skins.ValInfoRepository
 import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
-import com.valorant.store.global.UiState
+import com.valorant.store.global.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
-    private val _skinBatchLevels = MutableStateFlow<UiState<SkinBatchEntity>>(UiState.Loading)
-    val skinBatchLevels: StateFlow<UiState<SkinBatchEntity>> = _skinBatchLevels
+    private val _skinBatchLevels = MutableStateFlow<State<SkinBatchEntity>>(State.Loading)
+    val skinBatchLevels: StateFlow<State<SkinBatchEntity>> = _skinBatchLevels
 
-    private val skinsRepository = SkinsRepository
+    private val skinsRepository = ValInfoRepository
 
     init {
         viewModelScope.launch {
             riotStoreState.riotStore.collect { riotStore ->
                 when (riotStore) {
-                    is UiState.Loading -> {}
-                    is UiState.Success -> loadSkinInfo(riotStore.data)
-                    is UiState.Error -> {
-                        _skinBatchLevels.value = UiState.Error(riotStore.exception)
+                    is State.Loading -> {}
+                    is State.Success -> loadSkinInfo(riotStore.data)
+                    is State.Error -> {
+                        _skinBatchLevels.value = State.Error(riotStore.exception)
                     }
                 }
             }
@@ -36,7 +36,7 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
         skinsRepository.cachesLoaded.await().takeIf { it.isFailure }
             ?.exceptionOrNull()
             ?.let {
-                _skinBatchLevels.value = UiState.Error(it)
+                _skinBatchLevels.value = State.Error(it)
                 return
             }
 
@@ -47,6 +47,6 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
         val levels = bundleLevels + storefront.skinsPanel.items.map { it.item.itemId }
 
         val response = skinsRepository.getBatchSkins(levels)
-        _skinBatchLevels.value = UiState.of(response)
+        _skinBatchLevels.value = State.of(response)
     }
 }

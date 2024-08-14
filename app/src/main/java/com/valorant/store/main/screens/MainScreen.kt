@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.valorant.store.ErrorScreen
 import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
-import com.valorant.store.global.UiState
+import com.valorant.store.global.State
 import com.valorant.store.global.ViewModelProvider
 import com.valorant.store.main.viewmodel.MainScreenViewModel
 
@@ -29,9 +29,9 @@ fun MainScreen() {
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (val storefront = skinBatch) {
-            is UiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
-            is UiState.Success -> MainScreenContent(skinBatch = storefront.data)
-            is UiState.Error -> ErrorScreen()
+            is State.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            is State.Success -> MainScreenContent(skinBatch = storefront.data)
+            is State.Error -> ErrorScreen()
         }
     }
 }

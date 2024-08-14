@@ -6,17 +6,19 @@ import com.valorant.store.api.riot.entitlement.dto.EntitlementDTO
 object EntitlementRepository : Repository<EntitlementApi>(EntitlementApi::class.java) {
     override val baseUrl = "https://entitlements.auth.riotgames.com"
 
-    suspend fun getEntitlement() = runCatching {
+    suspend fun getEntitlement(): Result<EntitlementEntity> = runCatching {
         val response = apiClient.entitlement()
-        response.takeIf { it.isSuccessful }?.body()
+
+        response.takeIf { it.isSuccessful }
+            ?.body()
             ?.let { EntitlementMapper.toEntitlementEntity(it) }
-            ?: Result.failure(Exception("Null response body"))
-    }.getOrElse { Result.failure(it) }
+            ?: throw Exception("Null response body")
+    }
 }
 
 private object EntitlementMapper {
-    fun toEntitlementEntity(entitlementDTO: EntitlementDTO): Result<EntitlementEntity> =
-        EntitlementEntity(entitlementDTO.entitlementsToken).let { Result.success(it) }
+    fun toEntitlementEntity(entitlementDTO: EntitlementDTO): EntitlementEntity =
+        EntitlementEntity(entitlementDTO.entitlementsToken)
 }
 
 data class EntitlementEntity(val entitlementToken: String)
