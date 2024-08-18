@@ -9,6 +9,7 @@ import com.valorant.store.api.val_api.client_version.ClientVersionRepository
 import com.valorant.store.global.AppCache
 import com.valorant.store.global.DatastoreKey
 import com.valorant.store.global.State
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,27 +29,22 @@ class SplashState(private val application: Application) : AndroidViewModel(appli
 
     private suspend fun loadClientVersion() = coroutineScope {
         val clientVersionDeferred = async { ClientVersionRepository.getClientVersion() }
-
-        val cachedClientVersion: Result<ClientVersionEntity> = AppCache.readCache(
-            application.applicationContext,
-            DatastoreKey.VAL_API_VERSION
-        )
-
-        val currentClientVersionRes = clientVersionDeferred.await()
-
-        if (cachedClientVersion.isFailure) {
-            deleteAllCache()
-            _clientVersion.value = State.of(currentClientVersionRes)
-            return@coroutineScope
+        val cachedClientVersionDeferred: Deferred<Result<ClientVersionEntity>> = async {
+            AppCache.readCache(DatastoreKey.VAL_API_VERSION)
         }
 
+        val currentClientVersionRes = clientVersionDeferred.await()
+        val cachedClientVersionRes = cachedClientVersionDeferred.await()
 
         val clientVersion = runCatching {
             val currentClientVersion = currentClientVersionRes.getOrThrow()
 
-            cachedClientVersion.getOrThrow()
-                .takeIf { it.valApiVersion != currentClientVersion.valApiVersion }
-                ?.also { deleteAllCache() }
+            cachedClientVersionRes.getOrNull()
+                ?.takeIf { it.valApiVersion == currentClientVersion.valApiVersion }
+                ?: let {
+                    deleteAllCache()
+                    AppCache.writeCache(DatastoreKey.VAL_API_VERSION, currentClientVersion)
+                }
 
             currentClientVersion
         }

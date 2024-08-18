@@ -15,6 +15,8 @@ import com.valorant.store.api.val_api.skins.entity.CurrencyMapEntity
 import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
 import com.valorant.store.api.val_api.skins.entity.SkinEntity
 import com.valorant.store.api.val_api.skins.entity.SkinMapEntity
+import com.valorant.store.global.AppCache
+import com.valorant.store.global.DatastoreKey
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +30,13 @@ import java.util.UUID
 
 object ValInfoRepository : ValInfoRepositoryInitializer() {
     fun getBatchSkins(levelIds: List<UUID>): Result<SkinBatchEntity> = levelIds
-        .map { _skins[it] ?: return Result.failure(SkinNotFoundException(it)) }
+        .map { levelId ->
+            _skins[levelId]
+                ?: return Result.failure<SkinBatchEntity>(SkinNotFoundException(levelId)).also {
+                    Log.e("GET_SKIN_INFO", "Batch skins error", it.exceptionOrNull())
+                }
+        }
         .let { SkinsMapper.toSkinBatchEntity(it) }
-
 
     fun getSkinByLevelId(levelId: UUID): Result<SkinEntity> =
         _skins[levelId]?.let { Result.success(it) } ?: Result.failure(
@@ -71,49 +77,70 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
         }
     }
 
-    private suspend fun loadSkins(): Result<SkinMapEntity> = getFromRemote(
-        response = apiClient.skins(),
+    private suspend fun loadSkins(): Result<SkinMapEntity> = getData(
+        response = { apiClient.skins() },
         transform = SkinsMapper::toSkinMapEntity,
-        setCache = ::setCachedSkins
+        setData = ::setSkins,
+        cacheKey = DatastoreKey.SKINS_CACHE
     ).onLoadError("SKINS_INIT")
 
-    private suspend fun setCachedSkins(skinMapEntity: SkinMapEntity) {
+    private suspend fun setSkins(skinMapEntity: SkinMapEntity) {
         _skins.complete(skinMapEntity)
-        Log.d("SKINS_CACHE_LOADED", _skins.await().isNotEmpty().toString())
+        Log.d("SKINS_LOADED", _skins.await().isNotEmpty().toString())
     }
 
-    private suspend fun loadCurrencies(): Result<CurrencyMapEntity> = getFromRemote(
-        response = apiClient.currencies(),
+    private suspend fun loadCurrencies(): Result<CurrencyMapEntity> = getData(
+        response = { apiClient.currencies() },
         transform = SkinsMapper::toCurrencyMapEntity,
-        setCache = ::setCachedCurrencies
+        setData = ::setCurrencies,
+        cacheKey = DatastoreKey.CURRENCIES_CACHE
     ).onLoadError("CURRENCIES_INIT")
 
-    private suspend fun setCachedCurrencies(currencyMapEntity: CurrencyMapEntity) {
+    private suspend fun setCurrencies(currencyMapEntity: CurrencyMapEntity) {
         _currencies.complete(currencyMapEntity)
-        Log.d("CURRENCY_CACHE_LOADED", _currencies.await().isNotEmpty().toString())
+        Log.d("CURRENCY_LOADED", _currencies.await().isNotEmpty().toString())
     }
 
-    private suspend fun loadContentTiers(): Result<ContentTierMapEntity> = getFromRemote(
-        response = apiClient.contentTiers(),
+    private suspend fun loadContentTiers(): Result<ContentTierMapEntity> = getData(
+        response = { apiClient.contentTiers() },
         transform = SkinsMapper::toContentTierMapEntity,
-        setCache = ::setCachedContentTiers
+        setData = ::setContentTiers,
+        cacheKey = DatastoreKey.CONTENT_TIERS_CACHE
     ).onLoadError("CONTENT_TIERS_INIT")
 
 
-    private suspend fun setCachedContentTiers(contentTierMapEntity: ContentTierMapEntity) {
+    private suspend fun setContentTiers(contentTierMapEntity: ContentTierMapEntity) {
         _contentTiers.complete(contentTierMapEntity)
-        Log.d("CONTENT_TIERS_CACHE_LOADED", _contentTiers.await().isNotEmpty().toString())
+        Log.d("CONTENT_TIERS_LOADED", _contentTiers.await().isNotEmpty().toString())
+    }
+
+    private suspend inline fun <R, reified T> getData(
+        response: (() -> Response<R>),
+        noinline transform: (R) -> T,
+        noinline setData: (suspend (T) -> Unit),
+        cacheKey: DatastoreKey,
+    ): Result<T> = runCatching {
+        AppCache.readCache<T>(cacheKey).getOrNull()
+            ?.also { setData(it) }
+            ?: getFromRemote(
+                response = response(),
+                transform = transform,
+                setData = setData,
+                setCache = AppCache.writeCache(cacheKey)
+            ).getOrThrow()
     }
 
     private suspend fun <R, T> getFromRemote(
         response: Response<R>,
         transform: (R) -> T,
+        setData: (suspend (T) -> Unit),
         setCache: (suspend (T) -> Unit)
-    ) =
+    ): Result<T> =
         runCatching {
             response.takeIf { it.isSuccessful }
                 ?.body()?.let { transform(it) }
-                ?.also { entity -> setCache(entity) }
+                ?.also { setData(it) }
+                ?.also { setCache(it) }
                 ?: throw Exception(response.message())
         }
 

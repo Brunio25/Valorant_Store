@@ -1,6 +1,5 @@
 package com.valorant.store.api.riot.store
 
-import android.util.Log
 import com.valorant.store.api.config.ItemType
 import com.valorant.store.api.riot.store.dto.BundleDTO
 import com.valorant.store.api.riot.store.dto.ItemDTO
@@ -18,7 +17,6 @@ import com.valorant.store.api.riot.store.entity.StorefrontEntity
 object StoreMapper {
     fun toStorefrontEntity(storefrontDTO: StorefrontDTO): StorefrontEntity = StorefrontEntity(
         bundle = with(storefrontDTO.featuredBundle.bundles.first()) {
-            Log.w("STOREFRONT_BUNDLE", "Multiple featureBundles $this")
             toBundleEntity(this)
         },
         skinsPanel = toSingleItemOffers(storefrontDTO.skinsPanelLayout)
