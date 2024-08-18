@@ -1,6 +1,8 @@
 package com.valorant.store.api.riot.store
 
 import com.valorant.store.api.config.ItemType
+import com.valorant.store.api.riot.store.dto.BonusStoreDTO
+import com.valorant.store.api.riot.store.dto.BonusStoreOfferDTO
 import com.valorant.store.api.riot.store.dto.BundleDTO
 import com.valorant.store.api.riot.store.dto.ItemDTO
 import com.valorant.store.api.riot.store.dto.OfferDTO
@@ -10,6 +12,8 @@ import com.valorant.store.api.riot.store.dto.StorefrontDTO
 import com.valorant.store.api.riot.store.entity.BundleEntity
 import com.valorant.store.api.riot.store.entity.BundleItemEntity
 import com.valorant.store.api.riot.store.entity.ItemEntity
+import com.valorant.store.api.riot.store.entity.NightMarketEntity
+import com.valorant.store.api.riot.store.entity.NightMarketOfferEntity
 import com.valorant.store.api.riot.store.entity.SingleItemOfferEntity
 import com.valorant.store.api.riot.store.entity.SingleItemOffersEntity
 import com.valorant.store.api.riot.store.entity.StorefrontEntity
@@ -19,7 +23,8 @@ object StoreMapper {
         bundle = with(storefrontDTO.featuredBundle.bundles.first()) {
             toBundleEntity(this)
         },
-        skinsPanel = toSingleItemOffers(storefrontDTO.skinsPanelLayout)
+        skinsPanel = toSingleItemOffers(storefrontDTO.skinsPanelLayout),
+        nightMarket = storefrontDTO.bonusStore?.let { toNightMarketEntity(storefrontDTO.bonusStore) }
     )
 
     private fun toBundleEntity(bundleDTO: BundleDTO): BundleEntity = with(bundleDTO) {
@@ -70,4 +75,21 @@ object StoreMapper {
             quantity = quantity
         )
     }
+
+    private fun toNightMarketEntity(bonusStoreDTO: BonusStoreDTO): NightMarketEntity =
+        with(bonusStoreDTO) {
+            NightMarketEntity(
+                durationRemainingInSeconds = bonusStoreRemainingDurationInSeconds,
+                items = bonusStoreOffers.map { toNightMarketOfferEntity(it) }
+            )
+        }
+
+    private fun toNightMarketOfferEntity(bonusStoreOfferDTO: BonusStoreOfferDTO): NightMarketOfferEntity =
+        with(bonusStoreOfferDTO) {
+            NightMarketOfferEntity(
+                basePrice = offer.cost,
+                discountedPrice = discountCosts,
+                items = offer.rewards.map { rewardToItemEntity(it) }
+            )
+        }
 }

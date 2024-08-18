@@ -5,7 +5,8 @@ import java.util.UUID
 
 data class StorefrontEntity( // TODO: Add accessories and night market?
     val bundle: BundleEntity,
-    val skinsPanel: SingleItemOffersEntity
+    val skinsPanel: SingleItemOffersEntity,
+    val nightMarket: NightMarketEntity?
 )
 
 data class BundleEntity(
@@ -38,4 +39,15 @@ data class ItemEntity(
     val itemId: UUID,
     val itemType: ItemType,
     val quantity: Int
+)
+
+data class NightMarketEntity(
+    val durationRemainingInSeconds: Long,
+    val items: List<NightMarketOfferEntity>
+)
+
+data class NightMarketOfferEntity(
+    val basePrice: Map<UUID, Int>,
+    val discountedPrice: Map<UUID, Int>,
+    val items: List<ItemEntity>
 )

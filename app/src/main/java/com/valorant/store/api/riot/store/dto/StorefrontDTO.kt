@@ -15,7 +15,9 @@ data class StorefrontDTO(
     @SerializedName("AccessoryStore")
     val accessoryStore: AccessoryStoreDTO,
     @SerializedName("PluginStores")
-    val pluginStores: List<PluginStoreDTO>
+    val pluginStores: List<PluginStoreDTO>,
+    @SerializedName("BonusStore")
+    val bonusStore: BonusStoreDTO?
 )
 
 data class FeaturedBundleDTO(
@@ -195,4 +197,26 @@ data class PurchaseInformationDTO(
 data class SubOfferDTO(
     @SerializedName("PurchaseInformation")
     val purchaseInformation: PurchaseInformationDTO
+)
+
+data class BonusStoreDTO(
+    @SerializedName("BonusStoreOffers")
+    val bonusStoreOffers: List<BonusStoreOfferDTO>,
+    @SerializedName("BonusStoreRemainingDurationInSeconds")
+    val bonusStoreRemainingDurationInSeconds: Long,
+    @SerializedName("BonusStoreSecondsSinceItStarted")
+    val bonusStoreSecondsSinceItStarted: Long
+)
+
+data class BonusStoreOfferDTO(
+    @SerializedName("BonusOfferID")
+    val bonusOfferID: UUID,
+    @SerializedName("Offer")
+    val offer: OfferDTO,
+    @SerializedName("DiscountPercent")
+    val discountPercent: Int,
+    @SerializedName("DiscountCosts")
+    val discountCosts: Map<UUID, Int>,
+    @SerializedName("IsSeen")
+    val isSeen: Boolean
 )
