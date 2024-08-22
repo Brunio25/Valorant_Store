@@ -8,12 +8,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
-import java.lang.reflect.Type
 
 object AppCache {
     private const val CONTENT_CACHE_DATASTORE_NAME = "Valorant_Store_Content_Cache"
@@ -45,7 +43,7 @@ object AppCache {
         cacheKey: DatastoreKey
     ): Result<T> = runCatching {
         datastore.data.first()[cacheKey.key]
-            ?.let { gson.fromJson(it, typeToken<T>()) }
+            ?.let { gson.fromJson(it, T::class.java) }
             ?: throw NoSuchElementException("No cache for key $cacheKey")
     }
 
@@ -66,8 +64,6 @@ object AppCache {
         cacheKey: DatastoreKey,
         onMiss: () -> T
     ): T = readCache<T>(cacheKey).getOrNull() ?: onMiss()
-
-    inline fun <reified T> typeToken(): Type = object : TypeToken<T>() {}.type
 }
 
 enum class DatastoreKey(val key: Preferences.Key<String>) {
