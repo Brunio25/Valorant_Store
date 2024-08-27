@@ -1,6 +1,5 @@
 package com.valorant.store.api.val_api.skins.dto.skins
 
-import android.net.Uri
 import java.util.UUID
 
 data class SkinLevelBatchWrapperDTO(
@@ -17,7 +16,7 @@ data class SkinLevelDTO(
     val uuid: UUID,
     val displayName: String,
     val levelItem: String?,
-    val displayIcon: Uri?,
-    val streamedVideo: Uri?,
+    val displayIcon: String?,
+    val streamedVideo: String?,
     val assetPath: String
 )

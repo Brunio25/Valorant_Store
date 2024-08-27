@@ -1,8 +1,8 @@
 package com.valorant.store.api.riot.entitlement.dto
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 
 data class EntitlementDTO(
-    @SerializedName("entitlements_token")
+    @JsonProperty("entitlements_token")
     val entitlementsToken: String
 )

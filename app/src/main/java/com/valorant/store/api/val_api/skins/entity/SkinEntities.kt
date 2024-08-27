@@ -1,6 +1,5 @@
 package com.valorant.store.api.val_api.skins.entity
 
-import android.net.Uri
 import com.valorant.store.api.val_api.skins.dto.skins.SkinChromaDTO
 import com.valorant.store.api.val_api.skins.dto.skins.SkinLevelDTO
 import java.util.UUID
@@ -37,7 +36,7 @@ data class SkinLevelEntity(
     val uuid: UUID,
     val displayName: String?,
     val levelItem: String?,
-    val displayIcon: Uri?,
-    val streamedVideo: Uri?,
+    val displayIcon: String?,
+    val streamedVideo: String?,
     val assetPath: String
 )

@@ -1,11 +1,12 @@
 package com.valorant.store.api.val_api.skins.dto.currencies
 
+import com.valorant.store.api.val_api.skins.dto.BaseBatchWrapperDTO
 import java.util.UUID
 
-data class CurrencyWrapperDTO(
-    val status: Int,
-    val data: List<CurrencyDTO>
-)
+data class CurrencyBatchWrapperDTO(
+    override val status: Int,
+    override val data: List<CurrencyDTO>
+) : BaseBatchWrapperDTO
 
 data class CurrencyDTO(
     val uuid: UUID,

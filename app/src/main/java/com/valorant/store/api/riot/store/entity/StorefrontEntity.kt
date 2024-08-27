@@ -13,8 +13,8 @@ data class BundleEntity(
     val id: UUID,
     val currencyId: UUID,
     val durationRemainingInSeconds: Long,
-    val totalBasePrice: Map<UUID, Int>,
-    val totalDiscountedPrice: Map<UUID, Int>,
+    val totalBasePrice: Map<UUID, Int>?,
+    val totalDiscountedPrice: Map<UUID, Int>?,
     val items: List<BundleItemEntity>
 )
 

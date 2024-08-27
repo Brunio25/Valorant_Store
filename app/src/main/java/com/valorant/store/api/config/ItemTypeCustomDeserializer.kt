@@ -1,9 +1,8 @@
 package com.valorant.store.api.config
 
-import com.google.gson.JsonDeserializationContext
-import com.google.gson.JsonDeserializer
-import com.google.gson.JsonElement
-import java.lang.reflect.Type
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
 
 enum class ItemType(val value: String) {
     EQUIPPABLE_CONTENT("51c9eb99-3e6b-4658-801f-a5a7fd64bb9d"),
@@ -35,10 +34,7 @@ enum class ItemType(val value: String) {
     }
 }
 
-class ItemTypeCustomDeserializer : JsonDeserializer<ItemType> {
-    override fun deserialize(
-        json: JsonElement,
-        typeOfT: Type,
-        context: JsonDeserializationContext
-    ): ItemType = ItemType.of(json.asString)
+class ItemTypeCustomDeserializer : JsonDeserializer<ItemType>() {
+    override fun deserialize(p: JsonParser, ctxt: DeserializationContext): ItemType =
+        ItemType.of(p.text)
 }

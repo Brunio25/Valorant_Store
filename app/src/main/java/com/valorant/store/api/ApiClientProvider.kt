@@ -1,15 +1,16 @@
 package com.valorant.store.api
 
-import android.net.Uri
-import com.google.gson.GsonBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.addDeserializer
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.valorant.store.api.interceptors.AuthInterceptor
 import com.valorant.store.api.config.ItemType
 import com.valorant.store.api.config.ItemTypeCustomDeserializer
 import com.valorant.store.api.config.LocalDateTimeCustomDeserializer
-import com.valorant.store.api.config.UriCustomDeserializer
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.jackson.JacksonConverterFactory
 import java.time.LocalDateTime
 import java.util.concurrent.ConcurrentHashMap
 
@@ -29,7 +30,7 @@ object ClientProvider {
 
     private fun createRetrofitClient(baseUrl: String, includeAuthInterceptor: Boolean): Retrofit =
         Retrofit.Builder().baseUrl(baseUrl)
-            .addConverterFactory(createGson())
+            .jacksonConverterFactory()
             .client(
                 OkHttpClient.Builder()
                     .also {
@@ -39,10 +40,14 @@ object ClientProvider {
                     }.build()
             ).build()
 
-    private fun createGson() = GsonBuilder()
-        .registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeCustomDeserializer())
-        .registerTypeAdapter(Uri::class.java, UriCustomDeserializer())
-        .registerTypeAdapter(ItemType::class.java, ItemTypeCustomDeserializer())
-        .create()
-        .let { GsonConverterFactory.create(it) }
+    private fun Retrofit.Builder.jacksonConverterFactory() = ObjectMapper()
+        .registerKotlinModule()
+        .registerSerdeModule()
+        .let { JacksonConverterFactory.create(it) }
+        .let { addConverterFactory(it) }
+
+    private fun ObjectMapper.registerSerdeModule() = SimpleModule()
+        .addDeserializer(LocalDateTime::class, LocalDateTimeCustomDeserializer())
+        .addDeserializer(ItemType::class, ItemTypeCustomDeserializer())
+        .let { registerModule(it) }
 }

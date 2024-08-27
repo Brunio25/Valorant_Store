@@ -1,222 +1,222 @@
 package com.valorant.store.api.riot.store.dto
 
-import com.google.gson.annotations.SerializedName
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.valorant.store.api.config.ItemType
 import java.time.LocalDateTime
 import java.util.UUID
 
 data class StorefrontDTO(
-    @SerializedName("FeaturedBundle")
+    @JsonProperty("FeaturedBundle")
     val featuredBundle: FeaturedBundleDTO,
-    @SerializedName("SkinsPanelLayout")
+    @JsonProperty("SkinsPanelLayout")
     val skinsPanelLayout: SkinsPanelLayoutDTO,
-    @SerializedName("UpgradeCurrencyStore")
+    @JsonProperty("UpgradeCurrencyStore")
     val upgradeCurrencyStore: UpgradeCurrencyStoreDTO,
-    @SerializedName("AccessoryStore")
+    @JsonProperty("AccessoryStore")
     val accessoryStore: AccessoryStoreDTO,
-    @SerializedName("PluginStores")
+    @JsonProperty("PluginStores")
     val pluginStores: List<PluginStoreDTO>,
-    @SerializedName("BonusStore")
+    @JsonProperty("BonusStore")
     val bonusStore: BonusStoreDTO?
 )
 
 data class FeaturedBundleDTO(
-    @SerializedName("Bundle")
+    @JsonProperty("Bundle")
     val bundle: BundleDTO,
-    @SerializedName("Bundles")
+    @JsonProperty("Bundles")
     val bundles: List<BundleDTO>,
-    @SerializedName("BundleRemainingDurationInSeconds")
+    @JsonProperty("BundleRemainingDurationInSeconds")
     val bundleRemainingDurationInSeconds: Long
 )
 
 data class SkinsPanelLayoutDTO(
-    @SerializedName("SingleItemOffers")
+    @JsonProperty("SingleItemOffers")
     val singleItemOffers: List<UUID>,
-    @SerializedName("SingleItemStoreOffers")
+    @JsonProperty("SingleItemStoreOffers")
     val singleItemStoreOffers: List<OfferDTO>,
-    @SerializedName("SingleItemOffersRemainingDurationInSeconds")
+    @JsonProperty("SingleItemOffersRemainingDurationInSeconds")
     val singleItemOffersRemainingDurationInSeconds: Long
 )
 
 data class UpgradeCurrencyStoreDTO(
-    @SerializedName("UpgradeCurrencyOffers")
+    @JsonProperty("UpgradeCurrencyOffers")
     val upgradeCurrencyOffers: List<UpgradeCurrencyOfferDTO>
 )
 
 data class AccessoryStoreDTO(
-    @SerializedName("AccessoryStoreOffers")
+    @JsonProperty("AccessoryStoreOffers")
     val accessoryStoreOffers: List<AccessoryStoreOfferDTO>,
-    @SerializedName("AccessoryStoreRemainingDurationInSeconds")
+    @JsonProperty("AccessoryStoreRemainingDurationInSeconds")
     val accessoryStoreRemainingDurationInSeconds: Long,
-    @SerializedName("StorefrontID")
+    @JsonProperty("StorefrontID")
     val storefrontID: UUID
 )
 
 data class PluginStoreDTO(
-    @SerializedName("PluginID")
+    @JsonProperty("PluginID")
     val pluginID: UUID,
-    @SerializedName("PluginOffers")
+    @JsonProperty("PluginOffers")
     val pluginOffers: PluginOffersDTO
 )
 
 data class BundleDTO(
-    @SerializedName("ID")
+    @JsonProperty("ID")
     val id: UUID,
-    @SerializedName("DataAssetID")
+    @JsonProperty("DataAssetID")
     val dataAssetID: UUID,
-    @SerializedName("CurrencyID")
+    @JsonProperty("CurrencyID")
     val currencyID: UUID,
-    @SerializedName("Items")
+    @JsonProperty("Items")
     val items: List<ItemDTO>,
-    @SerializedName("ItemOffers")
+    @JsonProperty("ItemOffers")
     val itemOffers: List<ItemOfferDTO>?,
-    @SerializedName("TotalBaseCost")
-    val totalBaseCost: Map<UUID, Int>,
-    @SerializedName("TotalDiscountedCost")
-    val totalDiscountedCost: Map<UUID, Int>,
-    @SerializedName("TotalDiscountPercent")
+    @JsonProperty("TotalBaseCost")
+    val totalBaseCost: Map<UUID, Int>?,
+    @JsonProperty("TotalDiscountedCost")
+    val totalDiscountedCost: Map<UUID, Int>?,
+    @JsonProperty("TotalDiscountPercent")
     val totalDiscountPercent: Double,
-    @SerializedName("DurationRemainingInSeconds")
+    @JsonProperty("DurationRemainingInSeconds")
     val durationRemainingInSeconds: Long,
-    @SerializedName("WholesaleOnly")
+    @JsonProperty("WholesaleOnly")
     val wholesaleOnly: Boolean
 )
 
 data class ItemDTO(
-    @SerializedName("Item")
+    @JsonProperty("Item")
     val item: ItemInfoDTO,
-    @SerializedName("BasePrice")
+    @JsonProperty("BasePrice")
     val basePrice: Int,
-    @SerializedName("CurrencyID")
+    @JsonProperty("CurrencyID")
     val currencyID: UUID,
-    @SerializedName("DiscountPercent")
+    @JsonProperty("DiscountPercent")
     val discountPercent: Double,
-    @SerializedName("DiscountedPrice")
+    @JsonProperty("DiscountedPrice")
     val discountedPrice: Int,
-    @SerializedName("IsPromoItem")
+    @JsonProperty("IsPromoItem")
     val isPromoItem: Boolean
 )
 
 data class ItemInfoDTO(
-    @SerializedName("ItemTypeID")
+    @JsonProperty("ItemTypeID")
     val itemTypeID: ItemType,
-    @SerializedName("ItemID")
+    @JsonProperty("ItemID")
     val itemID: UUID,
-    @SerializedName("Amount")
+    @JsonProperty("Amount")
     val amount: Int
 )
 
 data class ItemOfferDTO(
-    @SerializedName("BundleItemOfferID")
+    @JsonProperty("BundleItemOfferID")
     val bundleItemOfferID: UUID,
-    @SerializedName("Offer")
+    @JsonProperty("Offer")
     val offer: OfferDTO,
-    @SerializedName("DiscountPercent")
+    @JsonProperty("DiscountPercent")
     val discountPercent: Double,
-    @SerializedName("DiscountedCost")
+    @JsonProperty("DiscountedCost")
     val discountedCost: Map<UUID, Int>
 )
 
 data class RewardDTO(
-    @SerializedName("ItemTypeID")
+    @JsonProperty("ItemTypeID")
     val itemTypeID: ItemType,
-    @SerializedName("ItemID")
+    @JsonProperty("ItemID")
     val itemID: UUID,
-    @SerializedName("Quantity")
+    @JsonProperty("Quantity")
     val quantity: Int
 )
 
 data class OfferDTO(
-    @SerializedName("OfferID")
+    @JsonProperty("OfferID")
     val offerID: UUID,
-    @SerializedName("IsDirectPurchase")
+    @JsonProperty("IsDirectPurchase")
     val isDirectPurchase: Boolean,
-    @SerializedName("StartDate")
+    @JsonProperty("StartDate")
     val startDate: LocalDateTime,
-    @SerializedName("Cost")
+    @JsonProperty("Cost")
     val cost: Map<UUID, Int>,
-    @SerializedName("Rewards")
+    @JsonProperty("Rewards")
     val rewards: List<RewardDTO>
 )
 
 data class UpgradeCurrencyOfferDTO(
-    @SerializedName("OfferID")
+    @JsonProperty("OfferID")
     val offerID: UUID,
-    @SerializedName("StorefrontItemID")
+    @JsonProperty("StorefrontItemID")
     val storefrontItemID: UUID,
-    @SerializedName("Offer")
+    @JsonProperty("Offer")
     val offer: OfferDTO,
-    @SerializedName("DiscountedPercent")
+    @JsonProperty("DiscountedPercent")
     val discountedPercent: Double
 )
 
 data class AccessoryStoreOfferDTO(
-    @SerializedName("Offer")
+    @JsonProperty("Offer")
     val offer: OfferDTO,
-    @SerializedName("ContractID")
+    @JsonProperty("ContractID")
     val contractID: UUID
 )
 
 data class PluginOffersDTO(
-    @SerializedName("StoreOffers")
+    @JsonProperty("StoreOffers")
     val storeOffers: List<StoreOfferDTO>,
-    @SerializedName("RemainingDurationInSeconds")
+    @JsonProperty("RemainingDurationInSeconds")
     val remainingDurationInSeconds: Long
 )
 
 data class StoreOfferDTO(
-    @SerializedName("PurchaseInformation")
+    @JsonProperty("PurchaseInformation")
     val purchaseInformation: PurchaseInformationDTO,
-    @SerializedName("SubOffers")
+    @JsonProperty("SubOffers")
     val subOffers: List<SubOfferDTO>
 )
 
 data class PurchaseInformationDTO(
-    @SerializedName("DataAssetID")
+    @JsonProperty("DataAssetID")
     val dataAssetID: UUID,
-    @SerializedName("OfferID")
+    @JsonProperty("OfferID")
     val offerID: UUID,
-    @SerializedName("StartDate")
+    @JsonProperty("StartDate")
     val startDate: LocalDateTime,
-    @SerializedName("PrimaryCurrencyID")
+    @JsonProperty("PrimaryCurrencyID")
     val primaryCurrencyID: UUID,
-    @SerializedName("Cost")
+    @JsonProperty("Cost")
     val cost: Map<UUID, Int>,
-    @SerializedName("DiscountedCost")
+    @JsonProperty("DiscountedCost")
     val discountedCost: Map<UUID, Int>,
-    @SerializedName("DiscountedPercentage")
+    @JsonProperty("DiscountedPercentage")
     val discountedPercentage: Double,
-    @SerializedName("Rewards")
+    @JsonProperty("Rewards")
     val rewards: List<Any>, // TODO
-    @SerializedName("AdditionalContext")
+    @JsonProperty("AdditionalContext")
     val additionalContext: List<Any>, // TODO
-    @SerializedName("WholesaleOnly")
+    @JsonProperty("WholesaleOnly")
     val wholesaleOnly: Boolean
 )
 
 data class SubOfferDTO(
-    @SerializedName("PurchaseInformation")
+    @JsonProperty("PurchaseInformation")
     val purchaseInformation: PurchaseInformationDTO
 )
 
 data class BonusStoreDTO(
-    @SerializedName("BonusStoreOffers")
+    @JsonProperty("BonusStoreOffers")
     val bonusStoreOffers: List<BonusStoreOfferDTO>,
-    @SerializedName("BonusStoreRemainingDurationInSeconds")
+    @JsonProperty("BonusStoreRemainingDurationInSeconds")
     val bonusStoreRemainingDurationInSeconds: Long,
-    @SerializedName("BonusStoreSecondsSinceItStarted")
+    @JsonProperty("BonusStoreSecondsSinceItStarted")
     val bonusStoreSecondsSinceItStarted: Long
 )
 
 data class BonusStoreOfferDTO(
-    @SerializedName("BonusOfferID")
+    @JsonProperty("BonusOfferID")
     val bonusOfferID: UUID,
-    @SerializedName("Offer")
+    @JsonProperty("Offer")
     val offer: OfferDTO,
-    @SerializedName("DiscountPercent")
+    @JsonProperty("DiscountPercent")
     val discountPercent: Int,
-    @SerializedName("DiscountCosts")
+    @JsonProperty("DiscountCosts")
     val discountCosts: Map<UUID, Int>,
-    @SerializedName("IsSeen")
+    @JsonProperty("IsSeen")
     val isSeen: Boolean
 )

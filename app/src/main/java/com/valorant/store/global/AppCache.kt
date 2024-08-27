@@ -1,28 +1,19 @@
 package com.valorant.store.global
 
 import android.app.Application
-import android.net.Uri
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
-import com.valorant.store.api.config.ContentTierMapEntityCustomDeserializer
-import com.valorant.store.api.config.CurrencyMapEntityCustomDeserializer
-import com.valorant.store.api.config.SkinMapEntityCustomDeserializer
-import com.valorant.store.api.config.UriCustomDeserializer
-import com.valorant.store.api.val_api.skins.entity.ContentTierMapEntity
-import com.valorant.store.api.val_api.skins.entity.CurrencyMapEntity
-import com.valorant.store.api.val_api.skins.entity.SkinMapEntity
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
-import java.lang.reflect.Type
 
 object AppCache {
     private const val CONTENT_CACHE_DATASTORE_NAME = "Valorant_Store_Content_Cache"
@@ -37,19 +28,14 @@ object AppCache {
         )
     }
 
-    val gson: Gson = GsonBuilder()
-        .registerTypeAdapter(Uri::class.java, UriCustomDeserializer())
-        .registerTypeAdapter(typeToken<SkinMapEntity>(), SkinMapEntityCustomDeserializer())
-        .registerTypeAdapter(typeToken<CurrencyMapEntity>(), CurrencyMapEntityCustomDeserializer())
-        .registerTypeAdapter(typeToken<ContentTierMapEntity>(), ContentTierMapEntityCustomDeserializer())
-        .create()
+    val mapper: ObjectMapper = ObjectMapper().registerKotlinModule()
 
     fun initialize(application: Application) {
         this.application = application
     }
 
     fun <T> writeCache(cacheKey: DatastoreKey): suspend (T) -> Unit = { data: T ->
-        val jsonData = gson.toJson(data)
+        val jsonData = mapper.writeValueAsString(data)
         datastore.edit { it[cacheKey.key] = jsonData }
     }
 
@@ -59,8 +45,11 @@ object AppCache {
         cacheKey: DatastoreKey
     ): Result<T> = runCatching {
         datastore.data.first()[cacheKey.key]
-            ?.let { gson.fromJson<T>(it, typeToken<T>()) }
-            ?: throw NoSuchElementException("No cache for key $cacheKey")
+            ?.let { mapper.readValue(it, T::class.java) }
+            ?.also { Log.d("CACHE_HIT_${cacheKey.name}", it.toString()) }
+            ?: throw NoSuchElementException("No cache for key $cacheKey").also {
+                Log.d("CACHE_MISS", cacheKey.name)
+            }
     }
 
     suspend fun deleteCache(cacheKey: DatastoreKey) {

@@ -2,10 +2,11 @@ package com.valorant.store.api.val_api.skins
 
 import android.util.Log
 import com.valorant.store.api.Repository
+import com.valorant.store.api.val_api.skins.dto.BaseBatchWrapperDTO
 import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersDTO
-import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersWrapperDTO
+import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersBatchWrapperDTO
 import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyDTO
-import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyWrapperDTO
+import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyBatchWrapperDTO
 import com.valorant.store.api.val_api.skins.dto.skins.SkinDTO
 import com.valorant.store.api.val_api.skins.dto.skins.SkinsBatchWrapperDTO
 import com.valorant.store.api.val_api.skins.entity.ContentTierEntity
@@ -78,7 +79,7 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
     }
 
     private suspend fun loadSkins(): Result<SkinMapEntity> = getData(
-        response = { apiClient.skins() },
+        apiCall = { apiClient.skins() },
         transform = SkinsMapper::toSkinMapEntity,
         setData = ::setSkins,
         cacheKey = DatastoreKey.SKINS_CACHE
@@ -90,7 +91,7 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
     }
 
     private suspend fun loadCurrencies(): Result<CurrencyMapEntity> = getData(
-        response = { apiClient.currencies() },
+        apiCall = { apiClient.currencies() },
         transform = SkinsMapper::toCurrencyMapEntity,
         setData = ::setCurrencies,
         cacheKey = DatastoreKey.CURRENCIES_CACHE
@@ -102,7 +103,7 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
     }
 
     private suspend fun loadContentTiers(): Result<ContentTierMapEntity> = getData(
-        response = { apiClient.contentTiers() },
+        apiCall = { apiClient.contentTiers() },
         transform = SkinsMapper::toContentTierMapEntity,
         setData = ::setContentTiers,
         cacheKey = DatastoreKey.CONTENT_TIERS_CACHE
@@ -114,33 +115,30 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
         Log.d("CONTENT_TIERS_LOADED", _contentTiers.await().isNotEmpty().toString())
     }
 
-    private suspend inline fun <R, reified T> getData(
-        response: (() -> Response<R>),
+    private suspend inline fun <reified R : BaseBatchWrapperDTO, reified T> getData(
+        noinline apiCall: suspend () -> Response<R>,
         noinline transform: (R) -> T,
         noinline setData: (suspend (T) -> Unit),
         cacheKey: DatastoreKey,
-    ): Result<T> = runCatching {
-        AppCache.readCache<T>(cacheKey).getOrNull()
-            ?.also { setData(it) }
+    ) = runCatching {
+        (AppCache.readCache<R>(cacheKey).getOrNull()
             ?: getFromRemote(
-                response = response(),
-                transform = transform,
-                setData = setData,
+                apiCall = apiCall,
                 setCache = AppCache.writeCache(cacheKey)
-            ).getOrThrow()
+            ).getOrThrow())
+            .let(transform)
+            .also { setData(it) }
     }
 
-    private suspend fun <R, T> getFromRemote(
-        response: Response<R>,
-        transform: (R) -> T,
-        setData: (suspend (T) -> Unit),
-        setCache: (suspend (T) -> Unit)
-    ): Result<T> =
+    private suspend fun <R : BaseBatchWrapperDTO> getFromRemote(
+        apiCall: suspend () -> Response<R>,
+        setCache: (suspend (List<Any>) -> Unit)
+    ): Result<R> =
         runCatching {
+            val response = apiCall()
             response.takeIf { it.isSuccessful }
-                ?.body()?.let { transform(it) }
-                ?.also { setData(it) }
-                ?.also { setCache(it) }
+                ?.body()
+                ?.also { setCache(it.data) }
                 ?: throw Exception(response.message())
         }
 
@@ -156,9 +154,11 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
 
 private object SkinsMapper {
     fun toSkinMapEntity(skinsBatchWrapperDTO: SkinsBatchWrapperDTO): SkinMapEntity =
-        skinsBatchWrapperDTO.data.associate {
-            it.levels.first().uuid to toSkinEntity(it)
-        }
+        toSkinMapEntity(skinsBatchWrapperDTO.data)
+
+    fun toSkinMapEntity(skinsDTO: List<SkinDTO>): SkinMapEntity = skinsDTO.associate {
+        it.levels.first().uuid to toSkinEntity(it)
+    }
 
     private fun toSkinEntity(skinDTO: SkinDTO): SkinEntity = with(skinDTO) {
         SkinEntity(
@@ -177,7 +177,7 @@ private object SkinsMapper {
     fun toSkinBatchEntity(skinEntities: List<SkinEntity>): Result<SkinBatchEntity> =
         SkinBatchEntity(skinEntities).let { Result.success(it) }
 
-    fun toCurrencyMapEntity(currencyBatchWrapperDTO: CurrencyWrapperDTO): CurrencyMapEntity =
+    fun toCurrencyMapEntity(currencyBatchWrapperDTO: CurrencyBatchWrapperDTO): CurrencyMapEntity =
         currencyBatchWrapperDTO.data.associate {
             it.uuid to toCurrencyEntity(it)
         }
@@ -191,7 +191,7 @@ private object SkinsMapper {
         )
     }
 
-    fun toContentTierMapEntity(contentTiersWrapperDTO: ContentTiersWrapperDTO): ContentTierMapEntity =
+    fun toContentTierMapEntity(contentTiersWrapperDTO: ContentTiersBatchWrapperDTO): ContentTierMapEntity =
         contentTiersWrapperDTO.data.associate {
             it.uuid to toContentTierEntity(it)
         }
