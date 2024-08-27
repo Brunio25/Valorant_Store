@@ -1,12 +1,11 @@
 package com.valorant.store.api.val_api.skins.dto.content_tiers
 
-import com.valorant.store.api.val_api.skins.dto.BaseBatchWrapperDTO
 import java.util.UUID
 
 data class ContentTiersBatchWrapperDTO(
-    override val status: Int,
-    override val data: List<ContentTiersDTO>
-) : BaseBatchWrapperDTO
+    val status: Int,
+    val data: List<ContentTiersDTO>
+)
 
 data class ContentTiersDTO(
     val uuid: UUID,

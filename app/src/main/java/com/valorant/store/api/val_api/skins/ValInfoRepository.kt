@@ -2,7 +2,6 @@ package com.valorant.store.api.val_api.skins
 
 import android.util.Log
 import com.valorant.store.api.Repository
-import com.valorant.store.api.val_api.skins.dto.BaseBatchWrapperDTO
 import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersDTO
 import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersBatchWrapperDTO
 import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyDTO
@@ -115,12 +114,12 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
         Log.d("CONTENT_TIERS_LOADED", _contentTiers.await().isNotEmpty().toString())
     }
 
-    private suspend inline fun <reified R : BaseBatchWrapperDTO, reified T> getData(
+    private suspend inline fun <reified R, reified T> getData(
         noinline apiCall: suspend () -> Response<R>,
         noinline transform: (R) -> T,
         noinline setData: (suspend (T) -> Unit),
         cacheKey: DatastoreKey,
-    ) = runCatching {
+    ): Result<T> = runCatching {
         (AppCache.readCache<R>(cacheKey).getOrNull()
             ?: getFromRemote(
                 apiCall = apiCall,
@@ -130,15 +129,15 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
             .also { setData(it) }
     }
 
-    private suspend fun <R : BaseBatchWrapperDTO> getFromRemote(
+    private suspend fun <R> getFromRemote(
         apiCall: suspend () -> Response<R>,
-        setCache: (suspend (List<Any>) -> Unit)
+        setCache: (suspend (R) -> Unit)
     ): Result<R> =
         runCatching {
             val response = apiCall()
             response.takeIf { it.isSuccessful }
                 ?.body()
-                ?.also { setCache(it.data) }
+                ?.also { setCache(it) }
                 ?: throw Exception(response.message())
         }
 
@@ -154,11 +153,9 @@ open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::cla
 
 private object SkinsMapper {
     fun toSkinMapEntity(skinsBatchWrapperDTO: SkinsBatchWrapperDTO): SkinMapEntity =
-        toSkinMapEntity(skinsBatchWrapperDTO.data)
-
-    fun toSkinMapEntity(skinsDTO: List<SkinDTO>): SkinMapEntity = skinsDTO.associate {
-        it.levels.first().uuid to toSkinEntity(it)
-    }
+        skinsBatchWrapperDTO.data.associate {
+            it.levels.first().uuid to toSkinEntity(it)
+        }
 
     private fun toSkinEntity(skinDTO: SkinDTO): SkinEntity = with(skinDTO) {
         SkinEntity(

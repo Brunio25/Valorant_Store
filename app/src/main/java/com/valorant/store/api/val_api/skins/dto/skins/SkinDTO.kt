@@ -1,11 +1,9 @@
 package com.valorant.store.api.val_api.skins.dto.skins
 
-import com.valorant.store.api.val_api.skins.dto.BaseBatchWrapperDTO
-
 data class SkinsBatchWrapperDTO(
-    override val status: Int,
-    override val data: List<SkinDTO>
-) : BaseBatchWrapperDTO
+    val status: Int,
+    val data: List<SkinDTO>
+)
 
 data class SkinWrapperDTO(
     val status: Int,

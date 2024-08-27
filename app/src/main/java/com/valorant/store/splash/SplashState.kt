@@ -15,6 +15,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class SplashState(private val application: Application) : AndroidViewModel(application) {
     private val _clientVersion = MutableStateFlow<State<ClientVersionEntity>>(State.Loading)
@@ -52,7 +53,7 @@ class SplashState(private val application: Application) : AndroidViewModel(appli
         loadClientVersion(clientVersion)
     }
 
-    private suspend fun deleteAllCache() {
+    private suspend fun deleteAllCache() = runBlocking {
         DatastoreKey.entries.forEach { AppCache.deleteCache(it) }
     }
 

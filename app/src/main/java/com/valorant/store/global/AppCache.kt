@@ -46,7 +46,7 @@ object AppCache {
     ): Result<T> = runCatching {
         datastore.data.first()[cacheKey.key]
             ?.let { mapper.readValue(it, T::class.java) }
-            ?.also { Log.d("CACHE_HIT_${cacheKey.name}", it.toString()) }
+            ?.also { Log.d("CACHE_HIT", cacheKey.name) }
             ?: throw NoSuchElementException("No cache for key $cacheKey").also {
                 Log.d("CACHE_MISS", cacheKey.name)
             }
@@ -56,21 +56,7 @@ object AppCache {
         datastore.edit { it -= cacheKey.key }
     }
 
-    suspend inline fun <reified T> readOrWrite(
-        cacheKey: DatastoreKey,
-        defaultData: () -> T
-    ): T = readCache<T>(cacheKey).getOrNull() ?: let {
-        val data = defaultData()
-        writeCache(cacheKey, data)
-        data
-    }
-
-    suspend inline fun <reified T> getOrElse(
-        cacheKey: DatastoreKey,
-        onMiss: () -> T
-    ): T = readCache<T>(cacheKey).getOrNull() ?: onMiss()
-
-    inline fun <reified T> typeToken(): Type = object : TypeToken<T>() {}.type
+    private fun ObjectMapper.writeValueAsBase64(): String = ""
 }
 
 enum class DatastoreKey(val key: Preferences.Key<String>) {
