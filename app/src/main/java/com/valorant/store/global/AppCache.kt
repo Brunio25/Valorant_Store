@@ -10,6 +10,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStoreFile
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.valorant.store.extensions.readBase64Value
+import com.valorant.store.extensions.writeValueAsBase64
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -35,7 +37,7 @@ object AppCache {
     }
 
     fun <T> writeCache(cacheKey: DatastoreKey): suspend (T) -> Unit = { data: T ->
-        val jsonData = mapper.writeValueAsString(data)
+        val jsonData = mapper.writeValueAsBase64(data)
         datastore.edit { it[cacheKey.key] = jsonData }
     }
 
@@ -45,7 +47,7 @@ object AppCache {
         cacheKey: DatastoreKey
     ): Result<T> = runCatching {
         datastore.data.first()[cacheKey.key]
-            ?.let { mapper.readValue(it, T::class.java) }
+            ?.let { mapper.readBase64Value<T>(it) }
             ?.also { Log.d("CACHE_HIT", cacheKey.name) }
             ?: throw NoSuchElementException("No cache for key $cacheKey").also {
                 Log.d("CACHE_MISS", cacheKey.name)
@@ -55,8 +57,6 @@ object AppCache {
     suspend fun deleteCache(cacheKey: DatastoreKey) {
         datastore.edit { it -= cacheKey.key }
     }
-
-    private fun ObjectMapper.writeValueAsBase64(): String = ""
 }
 
 enum class DatastoreKey(val key: Preferences.Key<String>) {

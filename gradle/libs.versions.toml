@@ -11,11 +11,13 @@ activityCompose = "1.9.1"
 composeBom = "2024.06.00"
 navigationRuntimeKtx = "2.7.7"
 retrofit = "2.11.0"
+jackson = "2.17.2"
 kotlinxCoroutines = "1.8.1"
 datastorePreferences = "1.1.1"
 
 [bundles]
-retrofit = ["retrofit", "retrofit-gson"]
+retrofit = ["retrofit", "retrofit-jackson"]
+jackson = ["jackson-core", "jackson-module"]
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,7 +39,9 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-navigation-runtime-ktx = { group = "androidx.navigation", name = "navigation-runtime-ktx", version.ref = "navigationRuntimeKtx" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationRuntimeKtx" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
-retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+retrofit-jackson = { group = "com.squareup.retrofit2", name = "converter-jackson", version.ref = "retrofit" }
+jackson-core = { group = "com.fasterxml.jackson.core", name = "jackson-databind", version.ref = "jackson" }
+jackson-module = { group = "com.fasterxml.jackson.module", name = "jackson-module-kotlin", version.ref = "jackson" }
 kotlinx-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 kotlinx-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "kotlinxCoroutines" }
 datastore-preferences = {group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastorePreferences"}

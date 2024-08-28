@@ -54,11 +54,6 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0") // TODO: remove
 
-    //implementation("com.fasterxml.jackson.core:jackson-core:2.17.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.17.2")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.2")
-    implementation("com.squareup.retrofit2:converter-jackson:2.11.0")
-
     implementation(libs.coil.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -72,6 +67,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.bundles.retrofit)
+    implementation(libs.bundles.jackson)
     implementation(libs.datastore.preferences)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

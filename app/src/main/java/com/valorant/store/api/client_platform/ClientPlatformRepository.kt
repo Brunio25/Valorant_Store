@@ -1,18 +1,16 @@
 package com.valorant.store.api.client_platform
 
-import android.util.Base64
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.valorant.store.api.client_platform.dto.ClientPlatformDTO
+import com.valorant.store.extensions.writeValueAsBase64
 
 object ClientPlatformRepository {
-    private val mapper = ObjectMapper()
+    private val mapper = ObjectMapper().registerKotlinModule()
     private val clientPlatform = ClientPlatformDTO()
 
-    fun getClientPlatform() = clientPlatform.toBase64().let { ClientPlatformEntity.of(it) }
-
-    private fun ClientPlatformDTO.toBase64() = mapper.writeValueAsBytes(this)
-        .let { Base64.encode(it, Base64.NO_WRAP) }
-        .toString(Charsets.UTF_8)
+    fun getClientPlatform() = mapper.writeValueAsBase64(clientPlatform)
+        .let { ClientPlatformEntity.of(it) }
 }
 
 data class ClientPlatformEntity(val encodedClientPlatform: String) {
