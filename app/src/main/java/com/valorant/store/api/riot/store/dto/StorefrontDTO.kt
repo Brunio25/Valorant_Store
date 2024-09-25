@@ -15,7 +15,7 @@ data class StorefrontDTO(
     @JsonProperty("AccessoryStore")
     val accessoryStore: AccessoryStoreDTO,
     @JsonProperty("PluginStores")
-    val pluginStores: List<PluginStoreDTO>,
+    val pluginStores: List<PluginStoreDTO>?,
     @JsonProperty("BonusStore")
     val bonusStore: BonusStoreDTO?
 )
