@@ -3,7 +3,7 @@ package com.valorant.store.api.riot.store.entity
 import com.valorant.store.api.config.ItemType
 import java.util.UUID
 
-data class StorefrontEntity( // TODO: Add accessories and night market?
+data class StorefrontEntity( // TODO: Add accessories?
     val bundle: BundleEntity,
     val skinsPanel: SingleItemOffersEntity,
     val nightMarket: NightMarketEntity?
@@ -31,7 +31,7 @@ data class SingleItemOffersEntity(
 )
 
 data class SingleItemOfferEntity(
-    val price: Map<UUID, Int>,
+    val prices: Map<UUID, Int>,
     val item: ItemEntity
 )
 
@@ -47,7 +47,7 @@ data class NightMarketEntity(
 )
 
 data class NightMarketOfferEntity(
-    val basePrice: Map<UUID, Int>,
+    val basePrices: Map<UUID, Int>,
     val discountedPrice: Map<UUID, Int>,
     val items: List<ItemEntity>
 )

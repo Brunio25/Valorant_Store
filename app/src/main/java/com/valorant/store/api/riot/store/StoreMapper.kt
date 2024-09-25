@@ -62,7 +62,7 @@ object StoreMapper {
     private fun toSingleItemOfferEntity(offerDTO: OfferDTO): SingleItemOfferEntity =
         with(offerDTO) {
             SingleItemOfferEntity(
-                price = this.cost,
+                prices = this.cost,
                 item = this.rewards.map { rewardToItemEntity(it) }
                     .first { it.itemType == ItemType.SKIN_LEVEL_CONTENT }
             )
@@ -87,7 +87,7 @@ object StoreMapper {
     private fun toNightMarketOfferEntity(bonusStoreOfferDTO: BonusStoreOfferDTO): NightMarketOfferEntity =
         with(bonusStoreOfferDTO) {
             NightMarketOfferEntity(
-                basePrice = offer.cost,
+                basePrices = offer.cost,
                 discountedPrice = discountCosts,
                 items = offer.rewards.map { rewardToItemEntity(it) }
             )

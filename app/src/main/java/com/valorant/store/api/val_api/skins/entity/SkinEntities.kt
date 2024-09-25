@@ -11,9 +11,9 @@ data class SkinBatchEntity(
 )
 
 data class SkinEntity(
-    val uuid: String,
+    val uuid: UUID,
     val displayName: String,
-    val themeUuid: String,
+    val themeUuid: UUID,
     val contentTierUuid: String?,
     val displayIcon: String?,
     val wallpaper: String?,
