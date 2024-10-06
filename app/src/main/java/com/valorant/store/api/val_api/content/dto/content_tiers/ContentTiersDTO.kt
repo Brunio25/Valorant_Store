@@ -1,4 +1,4 @@
-package com.valorant.store.api.val_api.skins.dto.content_tiers
+package com.valorant.store.api.val_api.content.dto.content_tiers
 
 import java.util.UUID
 

@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.valorant.store.ErrorScreen
-import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
+import com.valorant.store.api.val_api.content.entity.SkinBatchEntity
 import com.valorant.store.global.State
 import com.valorant.store.global.ViewModelProvider
 import com.valorant.store.main.viewmodel.MainScreenViewModel

@@ -16,7 +16,7 @@ sealed class State<out T> {
             of { result.getOrElse { it } }
     }
 
-    fun asResult() = when (this) {
+    fun asResult(): Result<T> = when (this) {
         is Success -> Result.success(data)
         is Error -> Result.failure(exception)
         Loading -> TODO()

@@ -5,8 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.valorant.store.api.config.ItemType
 import com.valorant.store.api.riot.store.entity.StorefrontEntity
 import com.valorant.store.api.state_control.riot_store.RiotStoreState
-import com.valorant.store.api.val_api.skins.ValInfoRepository
-import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
+import com.valorant.store.api.val_api.content.ValInfoRepository
+import com.valorant.store.api.val_api.content.entity.SkinBatchEntity
 import com.valorant.store.global.State
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,7 +16,8 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
     private val _skinBatchLevels = MutableStateFlow<State<SkinBatchEntity>>(State.Loading)
     val skinBatchLevels: StateFlow<State<SkinBatchEntity>> = _skinBatchLevels
 
-    private val skinsRepository = ValInfoRepository
+    private val contentRepository = ValInfoRepository
+//    private val contentMerger = RiotStoreValApiContentMerger(contentRepository)
 
     init {
         viewModelScope.launch {
@@ -33,7 +34,7 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
     }
 
     private suspend fun loadSkinInfo(storefront: StorefrontEntity) {
-        skinsRepository.cachesLoaded.await().takeIf { it.isFailure }
+        contentRepository.cachesLoaded.await().takeIf { it.isFailure }
             ?.exceptionOrNull()
             ?.let {
                 _skinBatchLevels.value = State.Error(it)
@@ -53,7 +54,7 @@ class MainScreenViewModel(riotStoreState: RiotStoreState) : ViewModel() {
 
         val levels = bundleLevels + singleItemLevels + nightMarketLevels
 
-        val response = skinsRepository.getBatchSkins(levels)
-        _skinBatchLevels.value = State.of(response)
+        val response = contentRepository.getBatchSkins(levels)
+        _skinBatchLevels.value = State.Success(response)
     }
 }

@@ -1,9 +1,9 @@
-package com.valorant.store.api.val_api.skins
+package com.valorant.store.api.val_api.content
 
 import com.valorant.store.api.Api
-import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersBatchWrapperDTO
-import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyBatchWrapperDTO
-import com.valorant.store.api.val_api.skins.dto.skins.SkinsBatchWrapperDTO
+import com.valorant.store.api.val_api.content.dto.content_tiers.ContentTiersBatchWrapperDTO
+import com.valorant.store.api.val_api.content.dto.currencies.CurrencyBatchWrapperDTO
+import com.valorant.store.api.val_api.content.dto.skins.SkinsBatchWrapperDTO
 import retrofit2.Response
 import retrofit2.http.GET
 

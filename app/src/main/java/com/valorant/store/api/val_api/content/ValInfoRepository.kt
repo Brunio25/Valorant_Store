@@ -1,20 +1,20 @@
-package com.valorant.store.api.val_api.skins
+package com.valorant.store.api.val_api.content
 
 import android.util.Log
 import com.valorant.store.api.Repository
-import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersDTO
-import com.valorant.store.api.val_api.skins.dto.content_tiers.ContentTiersBatchWrapperDTO
-import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyDTO
-import com.valorant.store.api.val_api.skins.dto.currencies.CurrencyBatchWrapperDTO
-import com.valorant.store.api.val_api.skins.dto.skins.SkinDTO
-import com.valorant.store.api.val_api.skins.dto.skins.SkinsBatchWrapperDTO
-import com.valorant.store.api.val_api.skins.entity.ContentTierEntity
-import com.valorant.store.api.val_api.skins.entity.ContentTierMapEntity
-import com.valorant.store.api.val_api.skins.entity.CurrencyEntity
-import com.valorant.store.api.val_api.skins.entity.CurrencyMapEntity
-import com.valorant.store.api.val_api.skins.entity.SkinBatchEntity
-import com.valorant.store.api.val_api.skins.entity.SkinEntity
-import com.valorant.store.api.val_api.skins.entity.SkinMapEntity
+import com.valorant.store.api.val_api.content.dto.content_tiers.ContentTiersDTO
+import com.valorant.store.api.val_api.content.dto.content_tiers.ContentTiersBatchWrapperDTO
+import com.valorant.store.api.val_api.content.dto.currencies.CurrencyDTO
+import com.valorant.store.api.val_api.content.dto.currencies.CurrencyBatchWrapperDTO
+import com.valorant.store.api.val_api.content.dto.skins.SkinDTO
+import com.valorant.store.api.val_api.content.dto.skins.SkinsBatchWrapperDTO
+import com.valorant.store.api.val_api.content.entity.ContentTierEntity
+import com.valorant.store.api.val_api.content.entity.ContentTierMapEntity
+import com.valorant.store.api.val_api.content.entity.CurrencyEntity
+import com.valorant.store.api.val_api.content.entity.CurrencyMapEntity
+import com.valorant.store.api.val_api.content.entity.SkinBatchEntity
+import com.valorant.store.api.val_api.content.entity.SkinEntity
+import com.valorant.store.api.val_api.content.entity.SkinMapEntity
 import com.valorant.store.global.AppCache
 import com.valorant.store.global.DatastoreKey
 import kotlinx.coroutines.CompletableDeferred
@@ -29,19 +29,11 @@ import retrofit2.Response
 import java.util.UUID
 
 object ValInfoRepository : ValInfoRepositoryInitializer() {
-    fun getBatchSkins(levelIds: List<UUID>): Result<SkinBatchEntity> = levelIds
-        .map { levelId ->
-            _skins[levelId]
-                ?: return Result.failure<SkinBatchEntity>(SkinNotFoundException(levelId)).also {
-                    Log.e("GET_SKIN_INFO", "Batch skins error", it.exceptionOrNull())
-                }
-        }
-        .let { SkinsMapper.toSkinBatchEntity(it) }
+    fun getBatchSkins(levelIds: List<UUID>): SkinBatchEntity = levelIds
+        .mapNotNull { levelId -> _skins[levelId] }
+        .let { SkinBatchEntity(it) }
 
-    fun getSkinByLevelId(levelId: UUID): Result<SkinEntity> =
-        _skins[levelId]?.let { Result.success(it) } ?: Result.failure(
-            SkinNotFoundException(levelId)
-        )
+    fun getCurrencyById(id: UUID): CurrencyEntity? = _currencies[id]
 }
 
 open class ValInfoRepositoryInitializer : Repository<ValInfoApi>(ValInfoApi::class.java, false) {
@@ -209,4 +201,10 @@ private object SkinsMapper {
 private operator fun <T> CompletableDeferred<Map<UUID, T>>.get(levelId: UUID): T? =
     getCompleted()[levelId]
 
-class SkinNotFoundException(id: UUID) : NoSuchElementException("Skin with skinLevel $id not found")
+open class ContentNotFoundException(message: String) : NoSuchElementException(message)
+
+class SkinNotFoundException(id: UUID) :
+    ContentNotFoundException("Skin with skinLevel $id not found")
+
+class CurrencyNotFoundException(id: UUID) :
+    ContentNotFoundException("Currency with id $id not found")

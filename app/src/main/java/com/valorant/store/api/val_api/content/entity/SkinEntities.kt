@@ -1,7 +1,7 @@
-package com.valorant.store.api.val_api.skins.entity
+package com.valorant.store.api.val_api.content.entity
 
-import com.valorant.store.api.val_api.skins.dto.skins.SkinChromaDTO
-import com.valorant.store.api.val_api.skins.dto.skins.SkinLevelDTO
+import com.valorant.store.api.val_api.content.dto.skins.SkinChromaDTO
+import com.valorant.store.api.val_api.content.dto.skins.SkinLevelDTO
 import java.util.UUID
 
 typealias SkinMapEntity = Map<UUID, SkinEntity>
