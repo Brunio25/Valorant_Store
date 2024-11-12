@@ -5,11 +5,15 @@ import com.valorant.store.data.datasource.valInfo.remote.ValInfoRemoteDatasource
 import com.valorant.store.data.mappers.clientVersion.toCached
 import com.valorant.store.data.mappers.clientVersion.toDomain
 import com.valorant.store.domain.model.clientVersion.ClientVersion
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -19,10 +23,17 @@ class ClientVersionRepository @Inject constructor(
     private val valInfoRemoteDatasource: ValInfoRemoteDatasource,
     private val clientVersionLocalDatasource: ClientVersionLocalDatasource
 ) {
-    fun getClientVersionFlow(): Flow<ClientVersion?> =
-        clientVersionLocalDatasource.clientVersionFlow.map { it?.toDomain() }
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    suspend fun getClientVersion(): ClientVersion? = getClientVersionFlow().firstOrNull()
+    val getClientVersionFlow: Flow<ClientVersion?> = clientVersionLocalDatasource.clientVersionFlow
+        .map { it?.toDomain() }
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.Lazily,
+            initialValue = null
+        )
+
+    suspend fun getClientVersion(): ClientVersion? = getClientVersionFlow.firstOrNull()
 
     suspend fun isVersionUpdated(): Boolean {
         val remoteVersionDeferred = withContext(Dispatchers.IO) {

@@ -13,11 +13,13 @@ class GetValInfoUseCase @Inject constructor(
     private val currenciesRepository: CurrenciesRepository,
     private val skinsRepository: SkinsRepository
 ) {
-    operator fun invoke(): Flow<ValInfoDataStream> = combine(
-        contentTiersRepository.getContentTiersFlow(),
-        currenciesRepository.getCurrenciesFlow(),
-        skinsRepository.getSkinsFlow()
+    operator fun invoke(): Flow<ValInfoDataStream?> = combine(
+        contentTiersRepository.getContentTiersFlow,
+        currenciesRepository.getCurrenciesFlow,
+        skinsRepository.getSkinsFlow
     ) { contentTiers, currencies, skins ->
+        if (skins == null) return@combine null
+
         ValInfoDataStream(
             contentTiers = contentTiers,
             currencies = currencies,

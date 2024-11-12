@@ -1,6 +1,5 @@
 package com.valorant.store.domain.usecase.storefront
 
-import android.util.Log
 import com.valorant.store.data.config.interceptors.StorefrontUrlInterceptor
 import com.valorant.store.data.datasource.storefront.remote.StoreHeaders
 import com.valorant.store.data.repository.clientPlatform.ClientPlatformRepository
@@ -19,11 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -45,19 +42,12 @@ class GetStorefrontUseCase @Inject constructor(
     }
 
     suspend operator fun invoke() = combine(
-        getStorefront().onEach {
-            Log.i(
-                "STOREFRONT_COMBINE",
-                it.toString()
-            )
-        }, // TODO: Tech Debt remove onEach
-        getValInfoUseCase().onEach { Log.i("VAL_INFO_COMBINE", "CENAS") }
+        getStorefront(),
+        getValInfoUseCase()
     ) { storefront, valInfo ->
         storefront to valInfo
     }.map { (storefront, valInfo) ->
-        if (storefront == null) {
-            return@map null
-        }
+        if (storefront == null || valInfo == null) return@map null
 
         storefront.toUi(valInfo)
     }
@@ -69,16 +59,18 @@ class GetStorefrontUseCase @Inject constructor(
         StorefrontUrlInterceptor.setShardProvider { shard }
 
         return flow {
-            storefrontRepository.getStorefront(
-                userId = requiredData.user.id,
-                headers = requiredData.toHeadersMap()
+            emit(
+                storefrontRepository.getStorefront(
+                    userId = requiredData.user.id,
+                    headers = requiredData.toHeadersMap()
+                )
             )
         }
     }
 
     private suspend fun getRequiredData(): StorefrontEssentialData? = withContext(Dispatchers.IO) {
         val clientVersionDeferred =
-            async { clientVersionRepository.getClientVersionFlow().firstOrNull() }
+            async { clientVersionRepository.getClientVersion() }
         val userDeferred = async { userRepository.getUser() }
         val entitlementDeferred = async { entitlementRepository.getEntitlement() }
 
