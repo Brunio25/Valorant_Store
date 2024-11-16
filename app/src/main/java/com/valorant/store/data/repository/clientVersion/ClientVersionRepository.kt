@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -27,10 +27,10 @@ class ClientVersionRepository @Inject constructor(
 
     val getClientVersionFlow: Flow<ClientVersion?> = clientVersionLocalDatasource.clientVersionFlow
         .map { it?.toDomain() }
-        .stateIn(
+        .shareIn(
             scope = scope,
             started = SharingStarted.Lazily,
-            initialValue = null
+            replay = 1
         )
 
     suspend fun getClientVersion(): ClientVersion? = getClientVersionFlow.firstOrNull()

@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.shareIn
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -25,10 +25,10 @@ class ContentTiersRepository @Inject constructor(
 
     val getContentTiersFlow: Flow<ContentTierMap?> = contentTiersLocalDatasource.contentTiersFlow
         .map { it?.toDomain() }
-        .stateIn(
+        .shareIn(
             scope = scope,
             started = SharingStarted.Lazily,
-            initialValue = null
+            replay = 1
         )
 
     suspend fun getContentTiers(): ContentTierMap? = getContentTiersFlow.firstOrNull()
