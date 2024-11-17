@@ -24,7 +24,7 @@ object StorefrontUrlInterceptor : Interceptor {
         val request = chain.request()
 
         val newUrl = request.url.newBuilder()
-            .host(request.url.host.format(shard))
+            .host(request.url.host.replace("placeholder", shard))
             .build()
 
         val newRequest = request.newBuilder()

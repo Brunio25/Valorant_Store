@@ -40,8 +40,7 @@ object RemoteDataModule {
 
     @Provides
     @Named("storefront_base_url")
-    fun provideStorefrontBaseUrl(): String =
-        "https://pd.eu.a.pvp.net" //TODO: Tech Debt eu is temporary
+    fun provideStorefrontBaseUrl(): String = "https://pd.placeholder.a.pvp.net"
 
     @Provides
     @Named("val_info_base_url")

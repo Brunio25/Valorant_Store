@@ -1,6 +1,5 @@
 package com.valorant.store.data.repository.skins
 
-import android.util.Log
 import com.valorant.store.data.datasource.valInfo.local.SkinsLocalDatasource
 import com.valorant.store.data.datasource.valInfo.remote.ValInfoRemoteDatasource
 import com.valorant.store.data.mappers.skins.toCached
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import javax.inject.Inject
 
@@ -24,7 +22,6 @@ class SkinsRepository @Inject constructor(
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     val getSkinsFlow: Flow<SkinMap?> = skinsLocalDatasource.skinsFlow
-        .onEach { Log.d("REPO", "ce") }
         .map { it?.toDomain() }
         .shareIn(
             scope = scope,
